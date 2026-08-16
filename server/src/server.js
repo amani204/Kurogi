@@ -11,18 +11,17 @@ const connectDB = require('./config/db');
 connectDB();
 const app = express();
 
-// --- security middleware, order matters ---
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL,   // never use '*' once cookies/auth are involved
+  origin: process.env.CLIENT_URL,   
   credentials: true,
 }));
-app.use(express.json({ limit: '10kb' }));   // caps body size, blocks payload-bomb attacks
+app.use(express.json({ limit: '10kb' }));   
 app.use(cookieParser());
-app.use(mongoSanitize());                    // strips $ and . from req.body/query/params
+app.use(mongoSanitize());                   
 app.use(hpp());
 
-// general rate limit — everything
+
 app.use('/api', rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 300,
@@ -30,7 +29,6 @@ app.use('/api', rateLimit({
   legacyHeaders: false,
 }));
 
-// stricter limit for auth — brute-force protection
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
@@ -39,11 +37,11 @@ const authLimiter = rateLimit({
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-// app.use('/api/auth', authLimiter, require('./routes/auth.routes'));
-// app.use('/api/menu', require('./routes/menu.routes'));
-// app.use('/api/bookings', require('./routes/booking.routes'));
-
-// central error handler — never leak stack traces in production
+app.use('/api/auth', authLimiter, require('./routes/auth.routes'));
+app.use('/api/bookings', require('./routes/booking.routes'));
+app.use('/api/orders', require('./routes/order.routes'));
+app.use('/api/menu', require('./routes/menu.routes'));
+app.use('/api/restaurant', require('./routes/restaurant.routes'));
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({

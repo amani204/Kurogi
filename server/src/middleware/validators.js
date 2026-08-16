@@ -1,0 +1,55 @@
+const { body, validationResult } = require('express-validator');
+
+const validate = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};
+
+const registerRules = [
+  body('name').trim().notEmpty().withMessage('Name is required').isLength({ max: 100 }),
+  body('email').trim().isEmail().withMessage('Valid email required').normalizeEmail(),
+  body('password')
+    .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+    .matches(/\d/).withMessage('Password must contain a number'),
+  body('role').optional().isIn(['owner', 'staff']),
+];
+
+const loginRules = [
+  body('email').trim().isEmail().normalizeEmail(),
+  body('password').notEmpty(),
+];
+
+const bookingRules = [
+  body('customerName').trim().notEmpty().isLength({ max: 100 }),
+  body('phone').trim().matches(/^[0-9+\s-]{8,15}$/),
+  body('email').optional({ checkFalsy: true }).isEmail().normalizeEmail(),
+  body('partySize').isInt({ min: 1, max: 30 }),
+  body('date').isISO8601().toDate(),
+  body('timeSlot').trim().notEmpty(),
+  body('specialRequests').optional().trim().isLength({ max: 300 }),
+];
+
+const orderRules = [
+  body('customerName').trim().notEmpty().isLength({ max: 100 }),
+  body('phone').trim().matches(/^[0-9+\s-]{8,15}$/),
+  body('email').optional({ checkFalsy: true }).isEmail().normalizeEmail(),
+  body('fulfillment').isIn(['delivery', 'pickup']),
+  body('address').if(body('fulfillment').equals('delivery')).trim().notEmpty().isLength({ max: 300 }),
+  body('items').isArray({ min: 1 }),
+  body('items.*.menuItemId').isMongoId(),
+  body('items.*.quantity').isInt({ min: 1, max: 50 }),
+  body('notes').optional().trim().isLength({ max: 300 }),
+];
+const menuItemRules = [
+  body('name').trim().notEmpty().isLength({ max: 100 }),
+  body('description').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
+  body('price').isFloat({ min: 0 }),
+  body('category').isIn(['starters', 'mains', 'drinks', 'desserts']),
+  body('photoUrl').optional({ checkFalsy: true }).trim().isURL().withMessage('photoUrl must be a valid URL'),
+  body('available').optional().isBoolean(),
+];
+
+module.exports = { validate, registerRules, loginRules, bookingRules, orderRules, menuItemRules };
