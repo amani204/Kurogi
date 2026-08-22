@@ -14,7 +14,6 @@ const registerRules = [
   body('password')
     .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
     .matches(/\d/).withMessage('Password must contain a number'),
-  body('role').optional().isIn(['owner', 'staff']),
 ];
 
 const loginRules = [
