@@ -51,12 +51,21 @@ const createBooking = async (req, res) => {
 const cancelBooking = async (req, res) => {
   const booking = await Booking.findOne({ cancelToken: req.params.token });
   if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
   if (!['pending', 'confirmed'].includes(booking.status)) {
-    return res.status(409).json({ message: 'Booking can no longer be cancelled' });
+    return res.status(400).json({ message: 'This booking can no longer be cancelled' });
   }
 
   booking.status = 'cancelled';
-  await booking.save();  res.json({ message: 'Booking cancelled' });
+  await booking.save();
+
+  // free the capacity this booking had reserved
+  await SlotCapacity.updateOne(
+    { date: booking.date, timeSlot: booking.timeSlot },
+    { $inc: { bookedCount: -booking.partySize } }
+  );
+
+  res.json({ message: 'Booking cancelled' });
 };
 
 // admin — protected route
@@ -69,14 +78,24 @@ const getAllBookings = async (req, res) => {
   const bookings = await Booking.find(filter).sort({ date: 1, timeSlot: 1 });
   res.json(bookings);
 };
-
 const updateBookingStatus = async (req, res) => {
   const { status } = req.body;
   const allowed = ['pending', 'confirmed', 'cancelled', 'completed', 'no-show'];
   if (!allowed.includes(status)) return res.status(400).json({ message: 'Invalid status' });
 
-  const booking = await Booking.findByIdAndUpdate(req.params.id, { status }, { new: true });
+  const booking = await Booking.findById(req.params.id);
   if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+  const wasActive = ['pending', 'confirmed'].includes(booking.status);
+  booking.status = status;
+  await booking.save();
+
+  if (status === 'cancelled' && wasActive) {
+    await SlotCapacity.updateOne(
+      { date: booking.date, timeSlot: booking.timeSlot },
+      { $inc: { bookedCount: -booking.partySize } }
+    );
+  }
 
   res.json(booking);
 };
