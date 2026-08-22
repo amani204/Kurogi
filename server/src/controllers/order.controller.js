@@ -2,15 +2,18 @@ const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
 const Restaurant = require('../models/Restaurant');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
-
 const createOrder = async (req, res) => {
   const { customerName, phone, email, fulfillment, address, items, notes } = req.body;
+
+  const restaurant = await Restaurant.findOne();
+  if (!restaurant || !restaurant.contact?.whatsapp) {
+    return res.status(500).json({ message: 'Restaurant not configured yet' });
+  }
 
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ message: 'Cart is empty' });
   }
 
-  // rebuild items from DB — client-sent prices/names are ignored entirely
   const menuItemIds = items.map(i => i.menuItemId);
   const dbItems = await MenuItem.find({ _id: { $in: menuItemIds } });
 
@@ -19,28 +22,20 @@ const createOrder = async (req, res) => {
 
   for (const cartItem of items) {
     const dbItem = dbItems.find(d => d._id.toString() === cartItem.menuItemId);
-
     if (!dbItem) return res.status(400).json({ message: `Item not found: ${cartItem.menuItemId}` });
     if (!dbItem.available) return res.status(409).json({ message: `${dbItem.name} is sold out` });
 
     const quantity = Math.max(1, Math.min(50, parseInt(cartItem.quantity, 10) || 1));
-
-    resolvedItems.push({
-      menuItem: dbItem._id,
-      name: dbItem.name,
-      price: dbItem.price,
-      quantity,
-    });
+    resolvedItems.push({ menuItem: dbItem._id, name: dbItem.name, price: dbItem.price, quantity });
     totalPrice += dbItem.price * quantity;
   }
 
+  // restaurant already confirmed valid — safe to persist now
   const order = await Order.create({
     customerName, phone, email, fulfillment, address, notes,
-    items: resolvedItems,
-    totalPrice,
+    items: resolvedItems, totalPrice,
   });
 
-  const restaurant = await Restaurant.findOne();
   const itemsList = resolvedItems.map(i => `${i.quantity}x ${i.name}`).join(', ');
   const message = `New order from ${customerName}: ${itemsList}. Total: ${totalPrice} DA. ${fulfillment === 'delivery' ? `Deliver to: ${address}` : 'Pickup'}. Manage: ${process.env.CLIENT_URL}/order-cancel/${order.cancelToken}`;
   const whatsappLink = buildWhatsAppLink(restaurant.contact.whatsapp, message);
@@ -54,13 +49,14 @@ const cancelOrder = async (req, res) => {
   if (order.status === 'cancelled') return res.status(400).json({ message: 'Already cancelled' });
 
   order.status = 'cancelled';
-  await order.save();
-  res.json({ message: 'Order cancelled' });
-};
+  const order = await Order.findOne({ cancelToken: req.params.token });
+  if (!order) return res.status(404).json({ message: 'Order not found' });
+  if (!['pending', 'confirmed'].includes(order.status)) {
+    return res.status(409).json({ message: 'Order can no longer be cancelled' });
+  }
 
-const getAllOrders = async (req, res) => {
-  const { status } = req.query;
-  const filter = status ? { status } : {};
+  order.status = 'cancelled';
+  await order.save();  const filter = status ? { status } : {};
   const orders = await Order.find(filter).sort({ createdAt: -1 });
   res.json(orders);
 };
