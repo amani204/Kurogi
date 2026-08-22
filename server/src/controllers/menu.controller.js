@@ -26,11 +26,12 @@ const updateMenuItem = async (req, res) => {
 };
 
 const toggleAvailability = async (req, res) => {
-  const item = await MenuItem.findById(req.params.id);
+  const item = await MenuItem.findOneAndUpdate(
+    { _id: req.params.id },
+    [{ $set: { available: { $not: '$available' } } }], 
+    { new: true }
+  );
   if (!item) return res.status(404).json({ message: 'Item not found' });
-
-  item.available = !item.available;
-  await item.save();
   res.json(item);
 };
 
