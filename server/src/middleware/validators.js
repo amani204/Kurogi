@@ -25,7 +25,7 @@ const bookingRules = [
   body('customerName').trim().notEmpty().isLength({ max: 100 }),
   body('phone').trim().matches(/^[0-9+\s-]{8,15}$/),
   body('email').optional({ checkFalsy: true }).isEmail().normalizeEmail(),
-  body('partySize').isInt({ min: 1, max: 30 }),
+  body('partySize').isInt({ min: 1, max: 30 }).toInt(),
   body('date').isISO8601().toDate(),
   body('timeSlot').trim().notEmpty(),
   body('specialRequests').optional().trim().isLength({ max: 300 }),
