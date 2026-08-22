@@ -3,11 +3,9 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const mongoSanitize = require('express-mongo-sanitize');
-const hpp = require('hpp');
+const sanitizeRequest = require('./middleware/sanitize');
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
-
 connectDB();
 const app = express();
 
@@ -17,9 +15,8 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '10kb' }));   
-app.use(cookieParser());
-app.use(mongoSanitize());                   
-app.use(hpp());
+app.use(cookieParser());    
+app.use(sanitizeRequest);      
 
 
 app.use('/api', rateLimit({
