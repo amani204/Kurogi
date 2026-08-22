@@ -2,36 +2,44 @@ const Booking = require('../models/Booking');
 const Restaurant = require('../models/Restaurant');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
 
+const Booking = require('../models/Booking');
+const Restaurant = require('../models/Restaurant');
+const SlotCapacity = require('../models/SlotCapacity');
+const { buildWhatsAppLink } = require('../utils/whatsapp');
+
 const createBooking = async (req, res) => {
   const { customerName, phone, email, partySize, date, timeSlot, specialRequests } = req.body;
 
   const restaurant = await Restaurant.findOne();
   if (!restaurant) return res.status(500).json({ message: 'Restaurant not configured yet' });
 
-  // sum party sizes already booked for this exact date+slot (ignore cancelled ones)
-  const existing = await Booking.aggregate([
-    {
-      $match: {
-        date: new Date(date),
-        timeSlot,
-        status: { $in: ['pending', 'confirmed'] },
-      },
-    },
-    { $group: { _id: null, total: { $sum: '$partySize' } } },
-  ]);
+  // ensure the slot doc exists first (idempotent, no capacity check yet)
+  await SlotCapacity.updateOne(
+    { date, timeSlot },
+    { $setOnInsert: { date, timeSlot, bookedCount: 0 } },
+    { upsert: true }
+  );
 
-  const alreadyBooked = existing[0]?.total || 0;
+  // atomically reserve capacity — the check and the increment are ONE operation,
+  // so two concurrent requests can never both pass this check for the last spot
+  const reserved = await SlotCapacity.findOneAndUpdate(
+    { date, timeSlot, bookedCount: { $lte: restaurant.capacityPerSlot - partySize } },
+    { $inc: { bookedCount: partySize } },
+    { new: true }
+  );
 
-  if (alreadyBooked + partySize > restaurant.capacityPerSlot) {
-    return res.status(409).json({
-      message: 'This time slot is fully booked. Please choose another time.',
-      remainingCapacity: Math.max(restaurant.capacityPerSlot - alreadyBooked, 0),
-    });
+  if (!reserved) {
+    return res.status(409).json({ message: 'This time slot is fully booked. Please choose another time.' });
   }
 
-  const booking = await Booking.create({
-    customerName, phone, email, partySize, date, timeSlot, specialRequests,
-  });
+  let booking;
+  try {
+    booking = await Booking.create({ customerName, phone, email, partySize, date, timeSlot, specialRequests });
+  } catch (err) {
+    // roll back the reservation if the booking write somehow fails
+    await SlotCapacity.updateOne({ date, timeSlot }, { $inc: { bookedCount: -partySize } });
+    throw err;
+  }
 
   const message = `Hi! Booking confirmed for ${customerName}, party of ${partySize}, on ${date} at ${timeSlot}. Manage/cancel: ${process.env.CLIENT_URL}/cancel/${booking.cancelToken}`;
   const whatsappLink = buildWhatsAppLink(restaurant.contact.whatsapp, message);
@@ -43,11 +51,12 @@ const createBooking = async (req, res) => {
 const cancelBooking = async (req, res) => {
   const booking = await Booking.findOne({ cancelToken: req.params.token });
   if (!booking) return res.status(404).json({ message: 'Booking not found' });
-  if (booking.status === 'cancelled') return res.status(400).json({ message: 'Already cancelled' });
+  if (!['pending', 'confirmed'].includes(booking.status)) {
+    return res.status(409).json({ message: 'Booking can no longer be cancelled' });
+  }
 
   booking.status = 'cancelled';
-  await booking.save();
-  res.json({ message: 'Booking cancelled' });
+  await booking.save();  res.json({ message: 'Booking cancelled' });
 };
 
 // admin — protected route
