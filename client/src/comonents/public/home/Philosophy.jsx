@@ -1,7 +1,9 @@
-import { useReveal } from "../../hooks/useReveal";
-import { useParallax } from "../../hooks/useParallax";
-import philosophyImage from "../../assets/chef.jpg";
-
+import { Link } from "react-router-dom";
+import { useReveal } from "../../../hooks/useReveal";
+import { useParallax } from "../../../hooks/useParallax";
+import { InkStroke } from "../InkStroke";
+import { SectionDivider } from "../InkStroke";
+import chefImage from "../../../assets/chef.jpg";
 export default function Philosophy() {
   const contentRef = useReveal({
     children: ".philosophy-reveal",
@@ -22,14 +24,17 @@ export default function Philosophy() {
             className="md:col-span-4 md:col-start-1"
           >
             <p className="philosophy-reveal label text-shu">
-              01 — Philosophy
+              Philosophy
             </p>
 
-            <h2 className="philosophy-reveal mt-8 text-5xl md:text-6xl">
-              Less,
-              <br />
-              but better.
+            <h2 className="philosophy-reveal mt-8 font-display text-5xl leading-[0.95] md:text-6xl">
+              Less, but better.
             </h2>
+
+            <InkStroke
+              trigger="scroll"
+              className="philosophy-reveal mt-6 h-4 w-32 text-shu"
+            />
 
             <p className="philosophy-reveal mt-8 text-sm leading-7 text-muted-foreground md:text-base">
               We believe precision is a form of respect.
@@ -43,26 +48,30 @@ export default function Philosophy() {
               flavours, quiet technique, and an experience
               that rewards attention.
             </p>
+
+            <Link
+              to="/gallery"
+              className="philosophy-reveal hairline-link label mt-8 inline-block"
+            >
+              Inside the room
+            </Link>
           </div>
 
           {/* Image */}
           <div className="relative md:col-span-7 md:col-start-6">
-            <div className="aspect-[4/5] overflow-hidden bg-nori">
-              <div
+            <div className="aspect-4/5 overflow-hidden bg-nori">
+              <img
                 ref={imageRef}
-                className="h-[115%] w-full bg-cover bg-center"
-                style={{
-                  backgroundImage: `url(${philosophyImage})`,
-                }}
+                src={chefImage}
+                alt="Chef preparing sushi behind the counter"
+                loading="lazy"
+                className="h-[115%] w-full object-cover grayscale-[15%]"
               />
             </div>
-
-            <p className="label mt-4 text-muted-foreground">
-              Seasonal craft · precise preparation
-            </p>
           </div>
 
         </div>
+        <SectionDivider className="mt-28 md:mt-36" />
       </div>
     </section>
   );

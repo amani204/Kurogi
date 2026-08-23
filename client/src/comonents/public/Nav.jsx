@@ -53,13 +53,13 @@ export default function Nav() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-500 ",
         overHero
           ? "bg-transparent text-washi"
           : "bg-sumi text-washi"
       )}
     >
-      <div className="shell flex h-16 items-center justify-between gap-6 md:h-20">
+      <div className="shell flex h-16 items-center justify-between gap-6 md:h-20 ">
 
         {/* Logo */}
         <Link
