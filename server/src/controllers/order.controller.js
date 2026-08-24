@@ -2,6 +2,7 @@ const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
 const Restaurant = require('../models/Restaurant');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
+
 const createOrder = async (req, res) => {
   const { customerName, phone, email, fulfillment, address, items, notes } = req.body;
 
@@ -30,7 +31,6 @@ const createOrder = async (req, res) => {
     totalPrice += dbItem.price * quantity;
   }
 
-  // restaurant already confirmed valid — safe to persist now
   const order = await Order.create({
     customerName, phone, email, fulfillment, address, notes,
     items: resolvedItems, totalPrice,
@@ -46,17 +46,21 @@ const createOrder = async (req, res) => {
 const cancelOrder = async (req, res) => {
   const order = await Order.findOne({ cancelToken: req.params.token });
   if (!order) return res.status(404).json({ message: 'Order not found' });
-  if (order.status === 'cancelled') return res.status(400).json({ message: 'Already cancelled' });
 
-  order.status = 'cancelled';
-  const order = await Order.findOne({ cancelToken: req.params.token });
-  if (!order) return res.status(404).json({ message: 'Order not found' });
   if (!['pending', 'confirmed'].includes(order.status)) {
     return res.status(409).json({ message: 'Order can no longer be cancelled' });
   }
 
   order.status = 'cancelled';
-  await order.save();  const filter = status ? { status } : {};
+  await order.save();
+
+  res.json({ message: 'Order cancelled' });
+};
+
+const getAllOrders = async (req, res) => {
+  const { status } = req.query;
+  const filter = status ? { status } : {};
+
   const orders = await Order.find(filter).sort({ createdAt: -1 });
   res.json(orders);
 };

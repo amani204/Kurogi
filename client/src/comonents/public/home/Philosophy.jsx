@@ -69,9 +69,9 @@ export default function Philosophy() {
               />
             </div>
           </div>
-
+  
         </div>
-        <SectionDivider className="mt-28 md:mt-36" />
+       
       </div>
     </section>
   );

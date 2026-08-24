@@ -7,10 +7,15 @@ const menuItemSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['starters', 'mains', 'drinks', 'desserts'],
+    trim: true,
+    lowercase: true,
   },
   photoUrl: { type: String, trim: true },
   available: { type: Boolean, default: true },
+  featured: { type: Boolean, default: false }, 
 }, { timestamps: true });
+
+menuItemSchema.index({ category: 1 });
+menuItemSchema.index({ featured: 1 });
 
 module.exports = mongoose.model('MenuItem', menuItemSchema);

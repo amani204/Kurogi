@@ -1,9 +1,5 @@
 const Booking = require('../models/Booking');
 const Restaurant = require('../models/Restaurant');
-const { buildWhatsAppLink } = require('../utils/whatsapp');
-
-const Booking = require('../models/Booking');
-const Restaurant = require('../models/Restaurant');
 const SlotCapacity = require('../models/SlotCapacity');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
 

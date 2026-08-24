@@ -39,6 +39,7 @@ app.use('/api/bookings', require('./routes/booking.routes'));
 app.use('/api/orders', require('./routes/order.routes'));
 app.use('/api/menu', require('./routes/menu.routes'));
 app.use('/api/restaurant', require('./routes/restaurant.routes'));
+app.use('/api/categories', require('./routes/category.routes'));
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.status || 500).json({

@@ -42,13 +42,38 @@ const orderRules = [
   body('items.*.quantity').isInt({ min: 1, max: 50 }),
   body('notes').optional().trim().isLength({ max: 300 }),
 ];
+
 const menuItemRules = [
   body('name').trim().notEmpty().isLength({ max: 100 }),
   body('description').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
-  body('price').isFloat({ min: 0 }),
-  body('category').isIn(['starters', 'mains', 'drinks', 'desserts']),
+  body('price').isFloat({ min: 0 }).toFloat(),
+  body('category').trim().notEmpty().toLowerCase(),
   body('photoUrl').optional({ checkFalsy: true }).trim().isURL().withMessage('photoUrl must be a valid URL'),
   body('available').optional().isBoolean(),
+  body('featured').optional().isBoolean(),
 ];
 
-module.exports = { validate, registerRules, loginRules, bookingRules, orderRules, menuItemRules };
+const categoryCreateRules = [
+  body('slug')
+    .trim().toLowerCase()
+    .matches(/^[a-z0-9-]+$/).withMessage('Slug must be lowercase letters, numbers, and hyphens only')
+    .isLength({ max: 40 }),
+  body('label').trim().notEmpty().isLength({ max: 50 }),
+  body('order').optional().isInt({ min: 0 }).toInt(),
+];
+
+const categoryUpdateRules = [
+  body('label').trim().notEmpty().isLength({ max: 50 }),
+  body('order').optional().isInt({ min: 0 }).toInt(),
+];
+
+module.exports = {
+  validate,
+  registerRules,
+  loginRules,
+  bookingRules,
+  orderRules,
+  menuItemRules,
+  categoryCreateRules,
+  categoryUpdateRules,
+};
