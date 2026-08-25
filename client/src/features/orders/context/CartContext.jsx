@@ -1,10 +1,29 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+} from "react";
 
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
-  const [lines, setLines] = useState([]);
+  const [lines, setLines] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem("kurogi-cart");
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch {
+      return [];
+    }
+  });
+
   const [open, setOpen] = useState(false);
+
+  // Keep cart after refresh
+  useEffect(() => {
+    localStorage.setItem("kurogi-cart", JSON.stringify(lines));
+  }, [lines]);
 
   const addItem = (item) => {
     setLines((current) => {
@@ -47,13 +66,18 @@ export function CartProvider({ children }) {
     );
   };
 
+  // Called after successful checkout
   const clearCart = () => {
     setLines([]);
+    localStorage.removeItem("kurogi-cart");
   };
 
   const count = useMemo(
     () =>
-      lines.reduce((total, line) => total + line.qty, 0),
+      lines.reduce(
+        (total, line) => total + line.qty,
+        0
+      ),
     [lines]
   );
 

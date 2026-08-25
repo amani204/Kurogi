@@ -15,7 +15,7 @@ export default function CartDrawer() {
       <div
         onClick={() => setOpen(false)}
         className={cn(
-          "fixed inset-0 z-[60] bg-sumi/40 backdrop-blur-[2px] transition-opacity duration-500",
+          "fixed inset-0 z-60 bg-sumi/40 backdrop-blur-[2px] transition-opacity duration-500",
           open
             ? "opacity-100"
             : "pointer-events-none opacity-0"
