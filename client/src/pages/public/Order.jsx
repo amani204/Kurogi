@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useCart } from "../features/orders/context/CartContext";
-import { useFetch } from "../hooks/useFetch";
-import { fetchDeliveryZones, submitOrder } from "../features/orders/api";
-import { formatPrice } from "../features/menu/formatPrice";
-import Button from "../comonents/ui/Button";
-import { InkCheck } from "../comonents/public/InkStroke";
+import { useCart } from "../../features/orders/context/CartContext";
+import { useFetch } from "../../hooks/useFetch";
+import { fetchDeliveryZones, submitOrder } from "../../features/orders/api";
+import { formatPrice } from "../../features/menu/formatPrice";
+import Button from "../../comonents/ui/Button";
+import { InkCheck } from "../../comonents/public/InkStroke";
 
 const initialForm = {
   customerName: "",

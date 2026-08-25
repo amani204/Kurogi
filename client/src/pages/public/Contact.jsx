@@ -1,5 +1,5 @@
-import { hours, restaurant, whatsappLink } from "../features/restaurant/data";
-import { SectionDivider } from "../comonents/public/InkStroke";
+import { hours, restaurant, whatsappLink } from "../../features/restaurant/data";
+import { SectionDivider } from "../../comonents/public/InkStroke";
 
 export default function Contact() {
   return (

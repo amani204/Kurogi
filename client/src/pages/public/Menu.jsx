@@ -1,10 +1,10 @@
 import { useState } from "react";
 
-import { useFetch } from "../hooks/useFetch";
-import { useReveal } from "../hooks/useReveal";
-import { useCart } from '../features/orders/context/CartContext';
-import { fetchMenu, fetchCategories } from "../features/menu/api";
-import { getMenuItemImage } from "../features/menu/imageMap";
+import { useFetch } from "../../hooks/useFetch";
+import { useReveal } from "../../hooks/useReveal";
+import { useCart } from '../../features/orders/context/CartContext';
+import { fetchMenu, fetchCategories } from "../../features/menu/api";
+import { getMenuItemImage } from "../../features/menu/imageMap";
 
 const MenuRow = ({ item }) => {
   const ref = useReveal();

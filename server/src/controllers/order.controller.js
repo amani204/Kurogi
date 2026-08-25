@@ -53,13 +53,13 @@ const createOrder = async (req, res) => {
     totalPrice,
   });
 
-  const itemsList = resolvedItems.map(i => `${i.quantity}x ${i.name}`).join(', ');
+    const itemsList = resolvedItems.map(i => `${i.quantity}x ${i.name}`).join(', ');
   const deliveryLine = fulfillment === 'delivery'
     ? `Deliver to: ${address} (${deliveryZoneSnapshot.wilaya}, +${deliveryFee} DA delivery)`
     : 'Pickup';
-  const message = `New order from ${customerName}: ${itemsList}. Total: ${totalPrice} DA. ${deliveryLine}. Manage: ${process.env.CLIENT_URL}/order-cancel/${order.cancelToken}`;
+  const orderRef = order._id.toString().slice(-6).toUpperCase();
+  const message = `New order from ${customerName} (${phone}): ${itemsList}. Total: ${totalPrice} DA. ${deliveryLine}. Ref: ${orderRef}`;
   const whatsappLink = buildWhatsAppLink(restaurant.contact.whatsapp, message);
-
   res.status(201).json({ order, whatsappLink });
 };
 

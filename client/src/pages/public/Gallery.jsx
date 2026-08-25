@@ -1,7 +1,7 @@
-import { useFetch } from "../hooks/useFetch";
-import { useReveal } from "../hooks/useReveal";
-import { fetchMenu } from "../features/menu/api";
-import { getMenuItemImage } from "../features/menu/imageMap";
+import { useFetch } from "../../hooks/useFetch";
+import { useReveal } from "../../hooks/useReveal";
+import { fetchMenu } from "../../features/menu/api";
+import { getMenuItemImage } from "../../features/menu/imageMap";
 const GalleryTile = ({ item, index }) => {
   const ref = useReveal();
 

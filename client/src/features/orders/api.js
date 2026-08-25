@@ -9,3 +9,8 @@ export const submitOrder = async (payload) => {
   const { data } = await api.post('/orders', payload); // { order, whatsappLink }
   return data;
 };
+
+export const cancelOrderRequest = async (token) => {
+  const { data } = await api.patch(`/orders/cancel/${token}`);
+  return data;
+};
