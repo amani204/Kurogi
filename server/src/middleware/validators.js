@@ -2,9 +2,7 @@ const { body, validationResult } = require('express-validator');
 
 const validate = (req, res, next) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
   next();
 };
 
@@ -37,6 +35,7 @@ const orderRules = [
   body('email').optional({ checkFalsy: true }).isEmail().normalizeEmail(),
   body('fulfillment').isIn(['delivery', 'pickup']),
   body('address').if(body('fulfillment').equals('delivery')).trim().notEmpty().isLength({ max: 300 }),
+  body('deliveryZoneId').if(body('fulfillment').equals('delivery')).isMongoId().withMessage('Select a delivery zone'),
   body('items').isArray({ min: 1 }),
   body('items.*.menuItemId').isMongoId(),
   body('items.*.quantity').isInt({ min: 1, max: 50 }),
@@ -54,10 +53,7 @@ const menuItemRules = [
 ];
 
 const categoryCreateRules = [
-  body('slug')
-    .trim().toLowerCase()
-    .matches(/^[a-z0-9-]+$/).withMessage('Slug must be lowercase letters, numbers, and hyphens only')
-    .isLength({ max: 40 }),
+  body('slug').trim().toLowerCase().matches(/^[a-z0-9-]+$/).withMessage('Slug must be lowercase letters, numbers, and hyphens only').isLength({ max: 40 }),
   body('label').trim().notEmpty().isLength({ max: 50 }),
   body('order').optional().isInt({ min: 0 }).toInt(),
 ];
@@ -67,13 +63,21 @@ const categoryUpdateRules = [
   body('order').optional().isInt({ min: 0 }).toInt(),
 ];
 
+const deliveryZoneCreateRules = [
+  body('wilaya').trim().notEmpty().isLength({ max: 100 }),
+  body('price').isFloat({ min: 0 }).toFloat(),
+];
+
+const deliveryZoneUpdateRules = [
+  body('price').isFloat({ min: 0 }).toFloat(),
+];
+
 module.exports = {
   validate,
-  registerRules,
-  loginRules,
+  registerRules, loginRules,
   bookingRules,
   orderRules,
   menuItemRules,
-  categoryCreateRules,
-  categoryUpdateRules,
+  categoryCreateRules, categoryUpdateRules,
+  deliveryZoneCreateRules, deliveryZoneUpdateRules,
 };

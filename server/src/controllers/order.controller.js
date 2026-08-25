@@ -1,10 +1,11 @@
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
 const Restaurant = require('../models/Restaurant');
+const DeliveryZone = require('../models/deliveryZone');
 const { buildWhatsAppLink } = require('../utils/whatsapp');
 
 const createOrder = async (req, res) => {
-  const { customerName, phone, email, fulfillment, address, items, notes } = req.body;
+  const { customerName, phone, email, fulfillment, address, deliveryZoneId, items, notes } = req.body;
 
   const restaurant = await Restaurant.findOne();
   if (!restaurant || !restaurant.contact?.whatsapp) {
@@ -15,11 +16,12 @@ const createOrder = async (req, res) => {
     return res.status(400).json({ message: 'Cart is empty' });
   }
 
+  // --- resolve items from the DB, ignore client-sent names/prices entirely ---
   const menuItemIds = items.map(i => i.menuItemId);
   const dbItems = await MenuItem.find({ _id: { $in: menuItemIds } });
 
   const resolvedItems = [];
-  let totalPrice = 0;
+  let itemsTotal = 0;
 
   for (const cartItem of items) {
     const dbItem = dbItems.find(d => d._id.toString() === cartItem.menuItemId);
@@ -28,16 +30,34 @@ const createOrder = async (req, res) => {
 
     const quantity = Math.max(1, Math.min(50, parseInt(cartItem.quantity, 10) || 1));
     resolvedItems.push({ menuItem: dbItem._id, name: dbItem.name, price: dbItem.price, quantity });
-    totalPrice += dbItem.price * quantity;
+    itemsTotal += dbItem.price * quantity;
   }
+
+  // --- resolve delivery fee from the DB, ignore any client-sent price ---
+  let deliveryZoneSnapshot;
+  let deliveryFee = 0;
+
+  if (fulfillment === 'delivery') {
+    const zone = await DeliveryZone.findById(deliveryZoneId);
+    if (!zone) return res.status(400).json({ message: 'Invalid delivery zone' });
+    deliveryZoneSnapshot = { wilaya: zone.wilaya, price: zone.price };
+    deliveryFee = zone.price;
+  }
+
+  const totalPrice = itemsTotal + deliveryFee; // the ONLY place totalPrice is computed
 
   const order = await Order.create({
     customerName, phone, email, fulfillment, address, notes,
-    items: resolvedItems, totalPrice,
+    deliveryZone: deliveryZoneSnapshot,
+    items: resolvedItems,
+    totalPrice,
   });
 
   const itemsList = resolvedItems.map(i => `${i.quantity}x ${i.name}`).join(', ');
-  const message = `New order from ${customerName}: ${itemsList}. Total: ${totalPrice} DA. ${fulfillment === 'delivery' ? `Deliver to: ${address}` : 'Pickup'}. Manage: ${process.env.CLIENT_URL}/order-cancel/${order.cancelToken}`;
+  const deliveryLine = fulfillment === 'delivery'
+    ? `Deliver to: ${address} (${deliveryZoneSnapshot.wilaya}, +${deliveryFee} DA delivery)`
+    : 'Pickup';
+  const message = `New order from ${customerName}: ${itemsList}. Total: ${totalPrice} DA. ${deliveryLine}. Manage: ${process.env.CLIENT_URL}/order-cancel/${order.cancelToken}`;
   const whatsappLink = buildWhatsAppLink(restaurant.contact.whatsapp, message);
 
   res.status(201).json({ order, whatsappLink });
@@ -53,14 +73,12 @@ const cancelOrder = async (req, res) => {
 
   order.status = 'cancelled';
   await order.save();
-
   res.json({ message: 'Order cancelled' });
 };
 
 const getAllOrders = async (req, res) => {
   const { status } = req.query;
   const filter = status ? { status } : {};
-
   const orders = await Order.find(filter).sort({ createdAt: -1 });
   res.json(orders);
 };
