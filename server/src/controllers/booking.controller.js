@@ -28,16 +28,16 @@ const getAvailability = async (req, res) => {
   const [closeH, closeM] = hoursEntry.close.split(':').map(Number);
 
   let cursor = openH * 60 + openM;
-  const closeMinutes = closeH * 60 + closeM;
+  let closeMinutes = closeH * 60 + closeM;
+  if (closeMinutes <= cursor) closeMinutes += 24 * 60;
   const slotTimes = [];
 
   while (cursor < closeMinutes) {
-    const h = String(Math.floor(cursor / 60)).padStart(2, '0');
+    const h = String(Math.floor(cursor / 60) % 24).padStart(2, '0');
     const m = String(cursor % 60).padStart(2, '0');
     slotTimes.push(`${h}:${m}`);
     cursor += slotLength;
   }
-
   const capacityDocs = await SlotCapacity.find({ date: parsedDate, timeSlot: { $in: slotTimes } });
   const bookedMap = {};
   capacityDocs.forEach((doc) => { bookedMap[doc.timeSlot] = doc.bookedCount; });
