@@ -2,6 +2,8 @@ import { useFetch } from "../../hooks/useFetch";
 import { useReveal } from "../../hooks/gsap/useReveal";
 import { fetchMenu } from "../../features/menu/api";
 import { getMenuItemImage } from "../../features/menu/imageMap";
+import { SectionDivider } from "../../components/public/InkStroke";
+
 const GalleryTile = ({ item, index }) => {
   const ref = useReveal();
 
@@ -85,12 +87,7 @@ const Gallery = () => {
           Gallery
         </h1>
       </header>
-
-      {/* Hairline divider */}
-      <div className="shell">
-        <div className="my-12 h-px bg-border" />
-      </div>
-
+      <SectionDivider className="my-12" />
       {/* Gallery */}
       <div className="shell grid gap-8 pb-28 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => (

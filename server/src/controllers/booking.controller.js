@@ -10,8 +10,19 @@ const getAvailability = async (req, res) => {
   const { date } = req.query;
   if (!date) return res.status(400).json({ message: 'date is required (YYYY-MM-DD)' });
 
-  const parsedDate = new Date(date);
-  if (isNaN(parsedDate.getTime())) return res.status(400).json({ message: 'Invalid date' });
+  const dateMatch = typeof date === 'string' && /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  const parsedDate = dateMatch
+    ? new Date(Date.UTC(Number(dateMatch[1]), Number(dateMatch[2]) - 1, Number(dateMatch[3])))
+    : null;
+  if (
+    !parsedDate ||
+    isNaN(parsedDate.getTime()) ||
+    parsedDate.getUTCFullYear() !== Number(dateMatch[1]) ||
+    parsedDate.getUTCMonth() !== Number(dateMatch[2]) - 1 ||
+    parsedDate.getUTCDate() !== Number(dateMatch[3])
+  ) {
+    return res.status(400).json({ message: 'Invalid date' });
+  }
 
   const restaurant = await Restaurant.findOne();
   if (!restaurant) return res.status(500).json({ message: 'Restaurant not configured yet' });

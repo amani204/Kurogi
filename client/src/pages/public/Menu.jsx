@@ -5,6 +5,7 @@ import { useReveal } from "../../hooks/gsap/useReveal";
 import { useCart } from '../../features/orders/context/CartContext';
 import { fetchMenu, fetchCategories } from "../../features/menu/api";
 import { getMenuItemImage } from "../../features/menu/imageMap";
+import { SectionDivider } from "../../components/public/InkStroke";
 
 const MenuRow = ({ item }) => {
   const ref = useReveal();
@@ -105,10 +106,7 @@ const Menu = () => {
         </p>
       </header>
 
-      {/* Divider */}
-      <div className="shell">
-        <div className="my-12 h-px bg-gin/40" />
-      </div>
+      <SectionDivider className="my-12" />
 
       {/* Categories */}
       <div className="shell flex flex-wrap gap-x-8 gap-y-3">

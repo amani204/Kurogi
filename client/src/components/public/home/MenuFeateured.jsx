@@ -3,7 +3,6 @@ import { useReveal } from "../../../hooks/gsap/useReveal";
 
 import { fetchMenu } from "../../../features/menu/api";
 import { getMenuItemImage } from "../../../features/menu/imageMap";
-
 const DishCard = ({ item }) => {
   const ref = useReveal();
 
@@ -15,10 +14,10 @@ const DishCard = ({ item }) => {
           alt={item.name}
           loading="lazy"
           className="
-            aspect-[4/5]
+            aspect-4/5
             w-full
             object-cover
-            grayscale-[12%]
+            grayscale-12
             brightness-90
             transition-all
             duration-700
@@ -69,7 +68,8 @@ const FeaturedDishes = () => {
   }
 
   return (
-    <section className="shell py-28 md:py-40">
+    
+   <section className="shell pb-16 md:pb-24">
       <p className="label text-shu">
         Signatures
       </p>

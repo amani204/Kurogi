@@ -14,7 +14,7 @@ export default function Philosophy() {
   const imageRef = useParallax(70);
 
   return (
-    <section className="overflow-hidden py-28 md:py-40">
+    <section className="overflow-hidden pt-16 pb-28 md:pt-24 md:pb-36">
       <div className="shell">
         <div className="grid gap-16 md:grid-cols-12 md:items-center">
 
@@ -69,10 +69,11 @@ export default function Philosophy() {
               />
             </div>
           </div>
-  
+    
         </div>
-       
       </div>
+      <SectionDivider className="mt-12" />
+
     </section>
   );
 }

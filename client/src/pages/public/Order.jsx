@@ -6,6 +6,7 @@ import { fetchDeliveryZones, submitOrder } from "../../features/orders/api";
 import { formatPrice } from "../../features/menu/utils/formatPrice";
 import Button from "../../components/ui/Button";
 import { InkCheck } from "../../components/public/InkStroke";
+import { SectionDivider } from "../../components/public/InkStroke";
 
 const initialForm = {
   customerName: "",
@@ -152,9 +153,7 @@ const Order = () => {
           </h1>
         </header>
 
-        <div className="shell">
-          <div className="my-12 h-px bg-border" />
-        </div>
+        <SectionDivider className="my-12" />
 
         <section className="shell pb-28">
           <p className="text-sm text-muted-foreground">

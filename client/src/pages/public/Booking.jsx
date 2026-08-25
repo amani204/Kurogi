@@ -7,6 +7,7 @@ import { useFetch } from '../../hooks/useFetch';
 import { fetchAvailability, submitBooking } from '../../features/booking/api';
 
 import Button from '../../components/ui/Button';
+import { SectionDivider } from "../../components/public/InkStroke";
 
 const todayISO = () => new Date().toISOString().split('T')[0];
 
@@ -23,6 +24,7 @@ const initialForm = {
 const Booking = () => {
   const [form, setForm] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
+  const [availabilityRetry, setAvailabilityRetry] = useState(0);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
 
@@ -32,7 +34,7 @@ const Booking = () => {
     error: slotsError,
   } = useFetch(
     () => (form.date ? fetchAvailability(form.date) : Promise.resolve(null)),
-    [form.date]
+    [form.date, availabilityRetry]
   );
 
   const handleChange = (e) => {
@@ -149,9 +151,7 @@ const Booking = () => {
         </h1>
       </header>
 
-      <div className="shell">
-        <div className="my-12 h-px bg-border" />
-      </div>
+      <SectionDivider className="my-12" />
 
       <div className="shell grid gap-16 pb-28 md:grid-cols-[1fr_0.8fr]">
 
@@ -193,9 +193,16 @@ const Booking = () => {
                   )}
 
                   {!slotsLoading && slotsError && (
-                    <p className="text-sm text-shu">
-                      Could not load availability. Please choose the date again.
-                    </p>
+                    <div className="flex items-center gap-3 text-sm text-shu">
+                      <p>Could not load availability.</p>
+                      <button
+                        type="button"
+                        onClick={() => setAvailabilityRetry((prev) => prev + 1)}
+                        className="hairline-link text-foreground"
+                      >
+                        Retry
+                      </button>
+                    </div>
                   )}
 
                   {!slotsLoading &&
