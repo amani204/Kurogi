@@ -2,12 +2,22 @@ import { useState } from "react";
 
 import { useFetch } from "../hooks/useFetch";
 import { useReveal } from "../hooks/useReveal";
-
+import { useCart } from '../features/orders/context/CartContext';
 import { fetchMenu, fetchCategories } from "../features/menu/api";
 import { getMenuItemImage } from "../features/menu/imageMap";
 
 const MenuRow = ({ item }) => {
   const ref = useReveal();
+  const { addItem } = useCart();
+
+  const handleAdd = () => {
+    addItem({
+      id: item._id,
+      name: item.name,
+      price: item.price,
+      image: getMenuItemImage(item.name),
+    });
+  };
 
   return (
     <li
@@ -49,7 +59,9 @@ const MenuRow = ({ item }) => {
               Sold out
             </span>
           ) : (
-            <button className="hairline-link label">
+            <button className="hairline-link label"   onClick={handleAdd}
+          disabled={!item.available}
+          aria-label={`Add ${item.name} to cart`}>
               Add to order
             </button>
           )}

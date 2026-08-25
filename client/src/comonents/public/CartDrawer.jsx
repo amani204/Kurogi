@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { useCart } from "../../features/orders/context/CartContext";
-import { formatPrice } from "../../features/menu/utils/formatPrice";
+import { formatPrice } from "../../features/menu/formatPrice";
 import { cn } from "../../lib/utils";
 
 export default function CartDrawer() {
