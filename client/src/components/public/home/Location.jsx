@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import { useReveal } from "../../../hooks/useReveal";
-
-import ambienceImage from "../../../assets/ambience.jpg";
+import { useReveal } from "../../../hooks/gsap/useReveal";
+import ambienceImage from "../../../assets/home/ambience.jpg";
 import { hours, restaurant } from "../../../features/restaurant/data";
 
 export default function Location() {
@@ -19,7 +18,7 @@ export default function Location() {
           src={ambienceImage}
           alt="The restaurant dining room"
           loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover grayscale-[20%]"
+          className="absolute inset-0 h-full w-full object-cover grayscale-20"
         />
         <div className="absolute inset-0 bg-sumi/65" />
         <div

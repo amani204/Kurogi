@@ -1,5 +1,5 @@
 import { cn } from "../../lib/utils";
-import { useInkDraw } from "../../hooks/useInkDraw";
+import { useInkDraw } from "../../hooks/gsap/useInkDraw";
 
 export function InkStroke({
   className,

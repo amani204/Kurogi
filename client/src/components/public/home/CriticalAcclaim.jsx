@@ -1,5 +1,5 @@
-import { useReveal } from "../../../hooks/useReveal";
-import { InkStroke } from "../InkStroke";
+import { useReveal } from "../../../hooks/gsap/useReveal";
+import { InkStroke } from "../../../components/public/InkStroke";
 
 const reviews = [
   {

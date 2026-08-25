@@ -1,5 +1,5 @@
 import { useFetch } from "../../../hooks/useFetch";
-import { useReveal } from "../../../hooks/useReveal";
+import { useReveal } from "../../../hooks/gsap/useReveal";
 
 import { fetchMenu } from "../../../features/menu/api";
 import { getMenuItemImage } from "../../../features/menu/imageMap";

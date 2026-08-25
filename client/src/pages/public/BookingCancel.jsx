@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { cancelBookingRequest } from '../../features/booking/api';
-import Button from '../../comonents/ui/Button';
+import Button from '../../components/ui/Button';
 
 const BookingCancel = () => {
   const { token } = useParams();

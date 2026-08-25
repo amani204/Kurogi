@@ -6,7 +6,7 @@ import { cn } from "../../lib/utils";
 import { useCart } from "../../features/orders/context/CartContext";
 import { useLang } from "../../i18n";
 import { restaurant } from "../../features/restaurant/data";
-import CartDrawer from "../../comonents/public/CartDrawer"; // ← new
+import CartDrawer from "../../components/public/CartDrawer"; 
 
 const links = [
   { to: "/", key: "home" },

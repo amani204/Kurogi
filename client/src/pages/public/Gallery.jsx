@@ -1,5 +1,5 @@
 import { useFetch } from "../../hooks/useFetch";
-import { useReveal } from "../../hooks/useReveal";
+import { useReveal } from "../../hooks/gsap/useReveal";
 import { fetchMenu } from "../../features/menu/api";
 import { getMenuItemImage } from "../../features/menu/imageMap";
 const GalleryTile = ({ item, index }) => {
@@ -18,7 +18,7 @@ const GalleryTile = ({ item, index }) => {
           className="
             w-full
             object-cover
-            grayscale-[12%]
+            grayscale-12
             transition-all
             duration-700
             group-hover:scale-105
@@ -30,7 +30,7 @@ const GalleryTile = ({ item, index }) => {
           className="
             absolute inset-0
             flex items-end
-            bg-gradient-to-t from-sumi/70 via-transparent to-transparent
+            bg-linear-to-t from-sumi/70 via-transparent to-transparent
             opacity-0
             transition-opacity duration-300
             group-hover:opacity-100

@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { useReveal } from "../../../hooks/useReveal";
-import { useParallax } from "../../../hooks/useParallax";
-import { InkStroke } from "../InkStroke";
-import { SectionDivider } from "../InkStroke";
-import chefImage from "../../../assets/chef.jpg";
+import { useReveal } from "../../../hooks/gsap/useReveal";
+import { useParallax } from "../../../hooks/gsap/useParallax";
+import { InkStroke } from "../../../components/public/InkStroke";
+import { SectionDivider } from "../../../components/public/InkStroke";
+import chefImage from "../../../assets/home/chef.jpg";
 export default function Philosophy() {
   const contentRef = useReveal({
     children: ".philosophy-reveal",
@@ -65,7 +65,7 @@ export default function Philosophy() {
                 src={chefImage}
                 alt="Chef preparing sushi behind the counter"
                 loading="lazy"
-                className="h-[115%] w-full object-cover grayscale-[15%]"
+                className="h-[115%] w-full object-cover grayscale-15"
               />
             </div>
           </div>

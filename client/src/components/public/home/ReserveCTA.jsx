@@ -1,6 +1,6 @@
 import Button from "../../ui/Button";
 import { InkStroke } from "../InkStroke";
-import { useReveal } from "../../../hooks/useReveal";
+import { useReveal } from "../../../hooks/gsap/useReveal";
 
 export default function ReserveCTA() {
   const contentRef = useReveal({

@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 import { useCart } from "../../features/orders/context/CartContext";
 import { useFetch } from "../../hooks/useFetch";
 import { fetchDeliveryZones, submitOrder } from "../../features/orders/api";
-import { formatPrice } from "../../features/menu/formatPrice";
-import Button from "../../comonents/ui/Button";
-import { InkCheck } from "../../comonents/public/InkStroke";
+import { formatPrice } from "../../features/menu/utils/formatPrice";
+import Button from "../../components/ui/Button";
+import { InkCheck } from "../../components/public/InkStroke";
 
 const initialForm = {
   customerName: "",
@@ -211,7 +211,7 @@ const Order = () => {
                   src={item.image}
                   alt={item.name}
                   loading="lazy"
-                  className="h-16 w-16 shrink-0 object-cover grayscale-[15%]"
+                  className="h-16 w-16 shrink-0 object-cover grayscale-15"
                 />
 
                 <div className="flex-1">

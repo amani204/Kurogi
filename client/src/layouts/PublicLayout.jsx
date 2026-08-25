@@ -1,12 +1,12 @@
 import { Outlet } from 'react-router-dom';
-import WhatsAppButton from '../comonents/public/WhatsAppButton';
-import Nav from '../comonents/public/Nav';
-import Footer from '../comonents/public/Footer';
+import WhatsAppButton from '../components/public/WhatsAppButton';
+import Nav from '../components/public/Nav';
+import Footer from '../components/public/Footer';
 const PublicLayout = () => (
   <div className="min-h-screen flex flex-col bg-washi text-sumi">
     <Nav/>
     <main className="flex-1">
-      <Outlet />
+    <Outlet />
     </main>
     <Footer />
     <WhatsAppButton />

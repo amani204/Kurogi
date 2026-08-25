@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
-import Button from "../../ui/Button";
-import {InkStroke} from "../InkStroke";
-import heroImage from "../../../assets/hero-suchi.jpg";
+import Button from "../../../components/ui/Button";
+import {InkStroke} from "../../../components/public/InkStroke";
+import heroImage from "../../../assets/home/hero-suchi.jpg";
 
 export default function Hero() {
   const heroRef = useRef(null);

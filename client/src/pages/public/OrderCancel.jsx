@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { cancelOrderRequest } from "../../features/orders/api";
-import Button from "../../comonents/ui/Button";
+import Button from "../../components/ui/Button";
 
 const OrderCancel = () => {
   const { token } = useParams();

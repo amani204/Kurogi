@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { useFetch } from "../../hooks/useFetch";
-import { useReveal } from "../../hooks/useReveal";
+import { useReveal } from "../../hooks/gsap/useReveal";
 import { useCart } from '../../features/orders/context/CartContext';
 import { fetchMenu, fetchCategories } from "../../features/menu/api";
 import { getMenuItemImage } from "../../features/menu/imageMap";
@@ -28,7 +28,7 @@ const MenuRow = ({ item }) => {
         src={getMenuItemImage(item.name)}
         alt={item.name}
         loading="lazy"
-        className="h-24 w-24 shrink-0 object-cover grayscale-[15%]"
+        className="h-24 w-24 shrink-0 object-cover grayscale-15"
       />
 
       <div className="flex-1">

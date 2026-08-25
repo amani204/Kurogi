@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFetch } from '../../hooks/useFetch';
 import { fetchAvailability, submitBooking } from '../../features/booking/api';
-import Button from '../../comonents/ui/Button';
+import Button from '../../components/ui/Button';
 
 const todayISO = () => new Date().toISOString().split('T')[0];
 
