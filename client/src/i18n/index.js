@@ -2,63 +2,14 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next, useTranslation } from "react-i18next";
 
+import en from "./locales/en";
+import fr from "./locales/fr";
+import ar from "./locales/ar";
+
 const resources = {
-  en: {
-    translation: {
-      home: "Home",
-      menu: "Menu",
-      book: "Booking",
-      order: "Order",
-      gallery: "Gallery",
-      contact: "Contact",
-      reserve: "Reserve",
-      checkout: "Checkout",
-      total: "Total",
-      navigate: "Navigate",
-      findUs: "Find us",
-      yourOrder: "Your order",
-      emptyCart:
-        "Nothing here yet. The menu is a good place to start.",
-    },
-  },
-
-  fr: {
-    translation: {
-      home: "Accueil",
-      menu: "Menu",
-      book: "Réservation",
-      order: "Commander",
-      gallery: "Galerie",
-      contact: "Contact",
-      reserve: "Réserver",
-      checkout: "Commander",
-      total: "Total",
-      navigate: "Navigation",
-      findUs: "Nous trouver",
-      yourOrder: "Votre commande",
-      emptyCart:
-        "Votre panier est vide. Découvrez notre menu.",
-    },
-  },
-
-  ar: {
-    translation: {
-      home: "الرئيسية",
-      menu: "القائمة",
-      book: "الحجز",
-      order: "الطلب",
-      gallery: "المعرض",
-      contact: "اتصل بنا",
-      reserve: "احجز الآن",
-      checkout: "إتمام الطلب",
-      total: "المجموع",
-      navigate: "التنقل",
-      findUs: "موقعنا",
-      yourOrder: "طلبك",
-      emptyCart:
-        "السلة فارغة. ابدأ باستكشاف قائمتنا.",
-    },
-  },
+  en,
+  fr,
+  ar,
 };
 
 i18n
@@ -71,6 +22,9 @@ i18n
 
     supportedLngs: ["en", "fr", "ar"],
 
+    ns: ["public"],
+    defaultNS: "public",
+
     interpolation: {
       escapeValue: false,
     },
@@ -81,10 +35,17 @@ i18n
     },
   });
 
+// Set initial document language/direction
+const currentLang = i18n.language?.split("-")[0] || "en";
+
+document.documentElement.lang = currentLang;
+document.documentElement.dir =
+  currentLang === "ar" ? "rtl" : "ltr";
+
 export const languages = ["en", "fr", "ar"];
 
 export function useLang() {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation("public");
 
   const lang = i18n.language?.split("-")[0] || "en";
 
@@ -92,6 +53,7 @@ export function useLang() {
     await i18n.changeLanguage(language);
 
     document.documentElement.lang = language;
+
     document.documentElement.dir =
       language === "ar" ? "rtl" : "ltr";
   };

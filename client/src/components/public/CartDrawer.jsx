@@ -1,24 +1,15 @@
 import { Link } from "react-router-dom";
-
 import { Trash2, X } from "lucide-react";
 
 import { useCart } from "../../features/orders/context/CartContext";
-
 import { formatPrice } from "../../features/menu/utils/formatPrice";
-
 import Button from "../../components/ui/Button";
-
 import { cn } from "../../lib/utils";
+import { useLang } from "../../i18n"; // <-- add
 
 export default function CartDrawer() {
-  const {
-    lines,
-    total,
-    setQty,
-    removeItem,
-    open,
-    setOpen,
-  } = useCart();
+  const { lines, total, setQty, removeItem, open, setOpen } = useCart();
+  const { t } = useLang(); // <-- add
 
   return (
     <>
@@ -27,9 +18,7 @@ export default function CartDrawer() {
         onClick={() => setOpen(false)}
         className={cn(
           "fixed inset-0 z-60 bg-sumi/40 backdrop-blur-[2px] transition-opacity duration-500",
-          open
-            ? "opacity-100"
-            : "pointer-events-none opacity-0"
+          open ? "opacity-100" : "pointer-events-none opacity-0"
         )}
         aria-hidden="true"
       />
@@ -47,25 +36,19 @@ export default function CartDrawer() {
         {/* Header */}
         <header className="flex items-center justify-between border-b border-border px-6 py-6">
           <div>
-            <p className="label text-shu">
-              The counter
-            </p>
-
+            <p className="label text-shu">{t("cart.eyebrow")}</p>
             <h2 className="mt-1 font-display text-2xl leading-none">
-              Your order
+              {t("cart.title")}
             </h2>
           </div>
 
           <button
             type="button"
             onClick={() => setOpen(false)}
-            aria-label="Close cart"
+            aria-label={t("cart.close")}
             className="flex h-9 w-9 items-center justify-center border border-border transition-colors hover:border-sumi hover:bg-sumi hover:text-washi"
           >
-            <X
-              className="h-4 w-4"
-              strokeWidth={1.25}
-            />
+            <X className="h-4 w-4" strokeWidth={1.25} />
           </button>
         </header>
 
@@ -73,21 +56,16 @@ export default function CartDrawer() {
         <div className="flex-1 overflow-y-auto px-6">
           {lines.length === 0 ? (
             <div className="py-20">
-              <p className="label text-muted-foreground">
-                Nothing here yet
-              </p>
-
+              <p className="label text-muted-foreground">{t("cart.emptyTitle")}</p>
               <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                The counter is waiting. Browse the menu and choose
-                something for your table.
+                {t("cart.emptyDescription")}
               </p>
-
               <Link
                 to="/menu"
                 onClick={() => setOpen(false)}
                 className="hairline-link label mt-6 inline-block text-shu"
               >
-                Browse the menu
+                {t("cart.browseMenu")}
               </Link>
             </div>
           ) : (
@@ -112,7 +90,6 @@ export default function CartDrawer() {
                     <p className="font-display text-lg leading-tight">
                       {item.name}
                     </p>
-
                     <p className="num mt-2 text-xs text-muted-foreground">
                       {formatPrice(item.price)}
                     </p>
@@ -124,25 +101,17 @@ export default function CartDrawer() {
                         <button
                           type="button"
                           className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
-                          onClick={() =>
-                            setQty(item.id, qty - 1)
-                          }
-                          aria-label={`Decrease ${item.name}`}
+                          onClick={() => setQty(item.id, qty - 1)}
+                          aria-label={t("cart.decrease", { name: item.name })}
                         >
                           −
                         </button>
-
-                        <span className="num w-8 text-center text-xs">
-                          {qty}
-                        </span>
-
+                        <span className="num w-8 text-center text-xs">{qty}</span>
                         <button
                           type="button"
                           className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
-                          onClick={() =>
-                            setQty(item.id, qty + 1)
-                          }
-                          aria-label={`Increase ${item.name}`}
+                          onClick={() => setQty(item.id, qty + 1)}
+                          aria-label={t("cart.increase", { name: item.name })}
                         >
                           +
                         </button>
@@ -152,13 +121,10 @@ export default function CartDrawer() {
                       <button
                         type="button"
                         onClick={() => removeItem(item.id)}
-                        aria-label={`Remove ${item.name}`}
+                        aria-label={t("cart.remove", { name: item.name })}
                         className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-shu"
                       >
-                        <Trash2
-                          className="h-3.5 w-3.5"
-                          strokeWidth={1.25}
-                        />
+                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.25} />
                       </button>
                     </div>
                   </div>
@@ -171,13 +137,8 @@ export default function CartDrawer() {
         {/* Footer */}
         <footer className="border-t border-border px-6 py-6">
           <div className="flex items-baseline justify-between">
-            <span className="label text-muted-foreground">
-              Total
-            </span>
-
-            <span className="num text-lg">
-              {formatPrice(total)}
-            </span>
+            <span className="label text-muted-foreground">{t("cart.total")}</span>
+            <span className="num text-lg">{formatPrice(total)}</span>
           </div>
 
           <div className="mt-6">
@@ -187,12 +148,12 @@ export default function CartDrawer() {
               className="w-full"
               onClick={() => setOpen(false)}
             >
-              Checkout
+              {t("cart.checkout")}
             </Button>
           </div>
 
           <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
-            Pickup or delivery available.
+            {t("cart.note")}
           </p>
         </footer>
       </aside>

@@ -1,13 +1,19 @@
+
 import { useFetch } from "../../../hooks/useFetch";
 import { useReveal } from "../../../hooks/gsap/useReveal";
-
 import { fetchMenu } from "../../../features/menu/api";
 import { getMenuItemImage } from "../../../features/menu/imageMap";
+import { useLang } from "../../../i18n";
+
 const DishCard = ({ item }) => {
   const ref = useReveal();
+  const { t } = useLang();
 
   return (
-    <article ref={ref} className="group opacity-0">
+    <article
+      ref={ref}
+      className="group opacity-0"
+    >
       <div className="overflow-hidden">
         <img
           src={getMenuItemImage(item.name)}
@@ -46,6 +52,8 @@ const DishCard = ({ item }) => {
 };
 
 const FeaturedDishes = () => {
+  const { t } = useLang();
+
   const {
     data: items,
     loading,
@@ -58,7 +66,7 @@ const FeaturedDishes = () => {
   if (loading) {
     return (
       <section className="shell py-28 text-center text-sumi/40">
-        Loading...
+        {t("featuredDishes.loading")}
       </section>
     );
   }
@@ -68,15 +76,18 @@ const FeaturedDishes = () => {
   }
 
   return (
-    
-   <section className="shell pb-16 md:pb-24">
+    <section className="shell pb-16 md:pb-24">
       <p className="label text-shu">
-        Signatures
+        {t("featuredDishes.eyebrow")}
       </p>
 
-      <h2 className="mt-5 font-display text-4xl leading-tight md:text-5xl">
-        Six things worth crossing town for
+      <h2 className="mt-5 max-w-2xl font-display text-4xl leading-tight md:text-5xl">
+        {t("featuredDishes.title")}
       </h2>
+
+      <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
+        {t("featuredDishes.description")}
+      </p>
 
       <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
@@ -91,3 +102,4 @@ const FeaturedDishes = () => {
 };
 
 export default FeaturedDishes;
+

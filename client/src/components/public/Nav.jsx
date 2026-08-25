@@ -6,8 +6,10 @@ import { cn } from "../../lib/utils";
 import { useCart } from "../../features/orders/context/CartContext";
 import { useLang } from "../../i18n";
 import { restaurant } from "../../features/restaurant/data";
+
 import CartDrawer from "../../components/public/CartDrawer";
 import Button from "../../components/ui/Button";
+import LanguageSwitcher from "../../components/public/SwitchLanguage";
 
 const links = [
   { to: "/", key: "home" },
@@ -54,7 +56,7 @@ export default function Nav() {
 
   return (
     <>
-      <header
+      <header dir="ltr"
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
           overHero
@@ -73,7 +75,7 @@ export default function Nav() {
           </Link>
 
           {/* Desktop navigation */}
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav dir="rtl" className="hidden items-center gap-8 md:flex">
             {links.map((link) => (
               <Link
                 key={link.to}
@@ -88,6 +90,11 @@ export default function Nav() {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
+            {/* Language */}
+            <div className="hidden md:block">
+              <LanguageSwitcher />
+            </div>
+
             {/* Cart */}
             <button
               type="button"
@@ -113,7 +120,7 @@ export default function Nav() {
                 className="px-5 py-3"
                 onClick={() => setOpen(false)}
               >
-                Book
+                {t("reservebtn")}
               </Button>
             </div>
 
@@ -158,6 +165,7 @@ export default function Nav() {
           <div className="min-h-0">
             <div className="border-t border-washi/15 bg-sumi">
               <div className="shell flex flex-col py-5">
+                {/* Navigation links */}
                 {links.map((link, index) => (
                   <Link
                     key={link.to}
@@ -204,8 +212,25 @@ export default function Nav() {
                       setOpen(false);
                     }}
                   >
-                    Book
+                    {t("reservebtn")}
                   </Button>
+                </div>
+
+                {/* Mobile language switcher */}
+                <div
+                  className={cn(
+                    "transition-all duration-500",
+                    mobileOpen
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-3 opacity-0"
+                  )}
+                  style={{
+                    transitionDelay: mobileOpen
+                      ? `${(links.length + 1) * 50}ms`
+                      : "0ms",
+                  }}
+                >
+                  <LanguageSwitcher mobile />
                 </div>
               </div>
             </div>

@@ -1,11 +1,8 @@
 import { useState } from 'react';
-
 import { Link } from 'react-router-dom';
-
+import { useLang } from '../../i18n'; 
 import { useFetch } from '../../hooks/useFetch';
-
 import { fetchAvailability, submitBooking } from '../../features/booking/api';
-
 import Button from '../../components/ui/Button';
 import { SectionDivider } from "../../components/public/InkStroke";
 
@@ -27,6 +24,7 @@ const Booking = () => {
   const [availabilityRetry, setAvailabilityRetry] = useState(0);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const { t } = useLang(); 
 
   const {
     data: slots,
@@ -39,7 +37,6 @@ const Booking = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -50,10 +47,7 @@ const Booking = () => {
   const adjustPartySize = (delta) => {
     setForm((prev) => ({
       ...prev,
-      partySize: Math.min(
-        8,
-        Math.max(1, prev.partySize + delta)
-      ),
+      partySize: Math.min(8, Math.max(1, prev.partySize + delta)),
     }));
   };
 
@@ -62,11 +56,10 @@ const Booking = () => {
     setError(null);
 
     if (!form.date) {
-      return setError('Please choose a date.');
+      return setError(t("booking.errors.date"));
     }
-
     if (!form.timeSlot) {
-      return setError('Please choose a time slot.');
+      return setError(t("booking.errors.time"));
     }
 
     setSubmitting(true);
@@ -83,12 +76,10 @@ const Booking = () => {
       };
 
       const data = await submitBooking(payload);
-
       setResult(data);
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          'Something went wrong. Please try again.'
+        err.response?.data?.message || t("booking.errors.generic")
       );
     } finally {
       setSubmitting(false);
@@ -96,23 +87,21 @@ const Booking = () => {
   };
 
   // ---------- Success ----------
-
   if (result) {
     const { booking, whatsappLink } = result;
-
     return (
       <main className="shell flex min-h-screen flex-col items-center justify-center py-32 text-center">
         <h1 className="font-display text-4xl md:text-5xl">
-          Table reserved
+          {t("booking.successTitle")}
         </h1>
 
         <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Thank you, {booking.customerName}. We've reserved a table for{' '}
-          <span className="num">{booking.partySize}</span> on{' '}
-          <span className="num">
-            {booking.date.split('T')[0]}
-          </span>{' '}
-          at <span className="num">{booking.timeSlot}</span>.
+          {t("booking.successMessage", {
+            name: booking.customerName,
+            partySize: booking.partySize,
+            date: booking.date.split('T')[0],
+            time: booking.timeSlot,
+          })}
         </p>
 
         {whatsappLink && (
@@ -122,17 +111,17 @@ const Booking = () => {
             rel="noopener noreferrer"
             className="label mt-10 bg-shu px-6 py-4 text-washi transition-colors hover:bg-sumi"
           >
-            Confirm on WhatsApp
+            {t("booking.confirmWhatsApp")}
           </a>
         )}
 
         <p className="mt-6 text-sm text-muted-foreground">
-          Need to change plans?{' '}
+          {t("booking.cancelPrompt")}{' '}
           <Link
             to={`/cancel/${booking.cancelToken}`}
             className="hairline-link text-foreground"
           >
-            Cancel this booking
+            {t("booking.cancelLink")}
           </Link>
         </p>
       </main>
@@ -140,31 +129,25 @@ const Booking = () => {
   }
 
   // ---------- Form ----------
-
   return (
     <main className="pt-24 md:pt-32">
       <header className="shell">
-        <p className="label text-shu">Reservations</p>
-
+        <p className="label text-shu">{t("booking.eyebrow")}</p>
         <h1 className="mt-4 font-display text-5xl leading-[0.95] md:text-7xl">
-          Reserve a table
+          {t("booking.title")}
         </h1>
       </header>
 
       <SectionDivider className="my-12" />
 
       <div className="shell grid gap-16 pb-28 md:grid-cols-[1fr_0.8fr]">
-
         <form onSubmit={handleSubmit}>
           <div className="grid gap-6">
-
             {/* Date */}
-
             <label className="block">
               <span className="label text-muted-foreground">
-                Date
+                {t("booking.dateLabel")}
               </span>
-
               <input
                 type="date"
                 name="date"
@@ -177,42 +160,34 @@ const Booking = () => {
             </label>
 
             {/* Time */}
-
             {form.date && (
               <div>
                 <span className="label text-muted-foreground">
-                  Time
+                  {t("booking.timeLabel")}
                 </span>
-
                 <div className="mt-3 flex flex-wrap gap-2">
-
                   {slotsLoading && (
                     <p className="text-sm text-muted-foreground">
-                      Loading availability...
+                      {t("booking.loadingAvailability")}
                     </p>
                   )}
-
                   {!slotsLoading && slotsError && (
                     <div className="flex items-center gap-3 text-sm text-shu">
-                      <p>Could not load availability.</p>
+                      <p>{t("booking.availabilityError")}</p>
                       <button
                         type="button"
                         onClick={() => setAvailabilityRetry((prev) => prev + 1)}
                         className="hairline-link text-foreground"
                       >
-                        Retry
+                        {t("booking.retry")}
                       </button>
                     </div>
                   )}
-
-                  {!slotsLoading &&
-                    !slotsError &&
-                    slots?.length === 0 && (
-                      <p className="text-sm text-muted-foreground">
-                        Closed on this date.
-                      </p>
-                    )}
-
+                  {!slotsLoading && !slotsError && slots?.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      {t("booking.closed")}
+                    </p>
+                  )}
                   {!slotsLoading &&
                     !slotsError &&
                     slots?.map((slot) => (
@@ -226,9 +201,7 @@ const Booking = () => {
                             timeSlot: slot.timeSlot,
                           }))
                         }
-                        data-active={
-                          form.timeSlot === slot.timeSlot
-                        }
+                        data-active={form.timeSlot === slot.timeSlot}
                         className="num border border-border px-4 py-2 text-xs transition-colors data-[active=true]:border-shu data-[active=true]:text-shu disabled:cursor-not-allowed disabled:opacity-30"
                       >
                         {slot.timeSlot}
@@ -239,14 +212,11 @@ const Booking = () => {
             )}
 
             {/* Party size */}
-
             <div>
               <span className="label text-muted-foreground">
-                Party size
+                {t("booking.partySizeLabel")}
               </span>
-
               <div className="mt-3 flex w-fit items-center border border-border">
-
                 <button
                   type="button"
                   onClick={() => adjustPartySize(-1)}
@@ -255,11 +225,9 @@ const Booking = () => {
                 >
                   −
                 </button>
-
                 <span className="num w-10 text-center text-xs">
                   {form.partySize}
                 </span>
-
                 <button
                   type="button"
                   onClick={() => adjustPartySize(1)}
@@ -268,17 +236,14 @@ const Booking = () => {
                 >
                   +
                 </button>
-
               </div>
             </div>
 
             {/* Name */}
-
             <label className="block">
               <span className="label text-muted-foreground">
-                Name
+                {t("booking.nameLabel")}
               </span>
-
               <input
                 name="customerName"
                 required
@@ -289,12 +254,10 @@ const Booking = () => {
             </label>
 
             {/* Phone */}
-
             <label className="block">
               <span className="label text-muted-foreground">
-                Phone
+                {t("booking.phoneLabel")}
               </span>
-
               <input
                 name="phone"
                 required
@@ -305,12 +268,10 @@ const Booking = () => {
             </label>
 
             {/* Email */}
-
             <label className="block">
               <span className="label text-muted-foreground">
-                Email (optional)
+                {t("booking.emailLabel")}
               </span>
-
               <input
                 type="email"
                 name="email"
@@ -321,12 +282,10 @@ const Booking = () => {
             </label>
 
             {/* Special requests */}
-
             <label className="block">
               <span className="label text-muted-foreground">
-                Special requests (optional)
+                {t("booking.specialRequestsLabel")}
               </span>
-
               <textarea
                 name="specialRequests"
                 rows={2}
@@ -335,16 +294,9 @@ const Booking = () => {
                 className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
               />
             </label>
-
           </div>
 
-          {/* Form error */}
-
-          {error && (
-            <p className="mt-6 text-sm text-shu">
-              {error}
-            </p>
-          )}
+          {error && <p className="mt-6 text-sm text-shu">{error}</p>}
 
           <Button
             type="submit"
@@ -352,20 +304,13 @@ const Booking = () => {
             disabled={submitting}
             className="mt-8 w-full"
           >
-            {submitting ? 'Reserving...' : 'Reserve Table'}
+            {submitting ? t("booking.submitting") : t("booking.submit")}
           </Button>
-
         </form>
 
-        {/* Aside */}
-
         <aside className="text-sm leading-relaxed text-muted-foreground">
-          <p>
-            Tables are held for 15 minutes past your reservation time.
-            For parties larger than 8, please call us directly.
-          </p>
+          <p>{t("booking.note")}</p>
         </aside>
-
       </div>
     </main>
   );

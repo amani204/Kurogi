@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useLang } from "../../i18n";
 import { useCart } from "../../features/orders/context/CartContext";
 import { useFetch } from "../../hooks/useFetch";
 import { fetchDeliveryZones, submitOrder } from "../../features/orders/api";
@@ -20,6 +21,7 @@ const initialForm = {
 
 const Order = () => {
   const { lines, total: cartTotal, clearCart } = useCart();
+  const { t } = useLang(); 
 
   const { data: zones, loading: zonesLoading } = useFetch(
     fetchDeliveryZones,
@@ -38,12 +40,10 @@ const Order = () => {
 
   const deliveryFee =
     form.fulfillment === "delivery" ? selectedZone?.price || 0 : 0;
-
   const estimatedTotal = cartTotal + deliveryFee;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -55,11 +55,10 @@ const Order = () => {
     setError(null);
 
     if (lines.length === 0) {
-      return setError("Your cart is empty.");
+      return setError(t("orderPage.errors.emptyCart"));
     }
-
     if (form.fulfillment === "delivery" && !form.wilaya) {
-      return setError("Please select a delivery zone.");
+      return setError(t("orderPage.errors.noZone"));
     }
 
     setSubmitting(true);
@@ -70,12 +69,9 @@ const Order = () => {
         phone: form.phone,
         email: form.email || undefined,
         fulfillment: form.fulfillment,
-        address:
-          form.fulfillment === "delivery" ? form.address : undefined,
-        deliveryZoneId:
-          form.fulfillment === "delivery" ? form.wilaya : undefined,
+        address: form.fulfillment === "delivery" ? form.address : undefined,
+        deliveryZoneId: form.fulfillment === "delivery" ? form.wilaya : undefined,
         notes: form.notes || undefined,
-
         items: lines.map((line) => ({
           menuItemId: line.item.id,
           quantity: line.qty,
@@ -83,13 +79,11 @@ const Order = () => {
       };
 
       const data = await submitOrder(payload);
-
       setResult(data);
       clearCart();
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          "Something went wrong placing your order. Please try again."
+        err.response?.data?.message || t("orderPage.errors.generic")
       );
     } finally {
       setSubmitting(false);
@@ -97,25 +91,22 @@ const Order = () => {
   };
 
   /* ---------------- SUCCESS ---------------- */
-
   if (result) {
     const { order, whatsappLink } = result;
-
     return (
       <main className="shell flex min-h-screen flex-col items-center justify-center py-32 text-center">
         <InkCheck className="h-20 w-24 text-shu" />
 
         <h1 className="mt-8 font-display text-4xl md:text-5xl">
-          Order placed
+          {t("orderPage.successTitle")}
         </h1>
 
         <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-          Thank you, {order.customerName}. Your total is{" "}
-          <span className="num text-shu">
-            {formatPrice(order.totalPrice)}
-          </span>
-          , payable on{" "}
-          {order.fulfillment === "delivery" ? "delivery" : "pickup"}.
+          {t("orderPage.successMessage", {
+            name: orderPage.customerName,
+            total: formatPrice(orderPage.totalPrice),
+            method: orderPage.fulfillment === "delivery" ? t("orderPage.delivery") : t("orderPage.pickup"),
+          })}
         </p>
 
         <a
@@ -124,16 +115,16 @@ const Order = () => {
           rel="noopener noreferrer"
           className="label mt-10 bg-shu px-6 py-4 text-washi transition-colors hover:bg-sumi"
         >
-          Confirm on WhatsApp
+          {t("orderPage.confirmWhatsApp")}
         </a>
 
         <p className="mt-6 text-sm text-muted-foreground">
-          Need to make a change?{" "}
+          {t("orderPage.cancelPrompt")}{' '}
           <Link
-            to={`/order-cancel/${order.cancelToken}`}
+            to={`/order-cancel/${orderPage.cancelToken}`}
             className="hairline-link text-foreground"
           >
-            Cancel this order
+            {t("orderPage.cancelLink")}
           </Link>
         </p>
       </main>
@@ -141,15 +132,13 @@ const Order = () => {
   }
 
   /* ---------------- EMPTY CART ---------------- */
-
   if (lines.length === 0) {
     return (
       <main className="pt-24 md:pt-32">
         <header className="shell">
-          <p className="label text-shu">Pickup & delivery</p>
-
+          <p className="label text-shu">{t("orderPage.eyebrow")}</p>
           <h1 className="mt-4 font-display text-5xl leading-[0.95] md:text-7xl">
-            Order online
+            {t("orderPage.title")}
           </h1>
         </header>
 
@@ -157,12 +146,9 @@ const Order = () => {
 
         <section className="shell pb-28">
           <p className="text-sm text-muted-foreground">
-            Your basket is empty.{" "}
-            <Link
-              to="/menu"
-              className="hairline-link text-foreground"
-            >
-              Browse the menu
+            {t("orderPage.emptyCartText")}{' '}
+            <Link to="/menu" className="hairline-link text-foreground">
+              {t("orderPage.browseMenu")}
             </Link>
             .
           </p>
@@ -171,31 +157,22 @@ const Order = () => {
     );
   }
 
-
   return (
     <main className="pt-24 md:pt-32">
-
-      {/* Header */}
       <header className="shell">
-        <p className="label text-shu">Pickup & delivery</p>
-
+        <p className="label text-shu">{t("orderPage.eyebrow")}</p>
         <h1 className="mt-4 font-display text-5xl leading-[0.95] md:text-7xl">
-          Order online
+          {t("orderPage.title")}
         </h1>
       </header>
 
       <SectionDivider className="my-12" />
+
       <div className="shell grid gap-16 pb-28 md:grid-cols-[1fr_0.8fr]">
-
         {/* LEFT — BASKET */}
-
         <section>
-          <p className="label text-muted-foreground">
-            Your basket
-          </p>
-
+          <p className="label text-muted-foreground">{t("orderPage.basketTitle")}</p>
           <ul className="mt-6">
-
             {lines.map(({ item, qty }) => (
               <li
                 key={item.id}
@@ -207,36 +184,24 @@ const Order = () => {
                   loading="lazy"
                   className="h-16 w-16 shrink-0 object-cover grayscale-15"
                 />
-
                 <div className="flex-1">
-                  <p className="font-display text-lg leading-tight">
-                    {item.name}
-                  </p>
-
+                  <p className="font-display text-lg leading-tight">{item.name}</p>
                   <p className="num mt-1 text-xs text-muted-foreground">
                     {formatPrice(item.price)}
                   </p>
                 </div>
-
                 <div className="flex items-center border border-border">
-                  <span className="num px-3 py-1 text-xs">
-                    ×{qty}
-                  </span>
+                  <span className="num px-3 py-1 text-xs">×{qty}</span>
                 </div>
               </li>
             ))}
-
           </ul>
         </section>
 
         {/* RIGHT — FORM */}
-
         <aside>
-
           {/* Pickup / Delivery */}
-
           <div className="flex gap-6">
-
             {["pickup", "delivery"].map((option) => (
               <button
                 key={option}
@@ -250,21 +215,15 @@ const Order = () => {
                 data-active={form.fulfillment === option}
                 className="hairline-link label text-muted-foreground data-[active=true]:text-foreground"
               >
-                {option}
+                {t(`orderPage.fulfillment.${option}`)}
               </button>
             ))}
-
           </div>
 
           {/* Customer fields */}
-
           <div className="mt-8 grid gap-6">
-
             <label className="block">
-              <span className="label text-muted-foreground">
-                Name
-              </span>
-
+              <span className="label text-muted-foreground">{t("orderPage.nameLabel")}</span>
               <input
                 name="customerName"
                 value={form.customerName}
@@ -274,10 +233,7 @@ const Order = () => {
             </label>
 
             <label className="block">
-              <span className="label text-muted-foreground">
-                Phone
-              </span>
-
+              <span className="label text-muted-foreground">{t("orderPage.phoneLabel")}</span>
               <input
                 name="phone"
                 value={form.phone}
@@ -287,10 +243,7 @@ const Order = () => {
             </label>
 
             <label className="block">
-              <span className="label text-muted-foreground">
-                Email
-              </span>
-
+              <span className="label text-muted-foreground">{t("orderPage.emailLabel")}</span>
               <input
                 type="email"
                 name="email"
@@ -301,14 +254,10 @@ const Order = () => {
             </label>
 
             {/* Delivery fields */}
-
             {form.fulfillment === "delivery" && (
               <>
                 <label className="block">
-                  <span className="label text-muted-foreground">
-                    Wilaya
-                  </span>
-
+                  <span className="label text-muted-foreground">{t("orderPage.wilayaLabel")}</span>
                   <select
                     name="wilaya"
                     value={form.wilaya}
@@ -317,10 +266,9 @@ const Order = () => {
                   >
                     <option value="" disabled>
                       {zonesLoading
-                        ? "Loading..."
-                        : "Select your wilaya"}
+                        ? t("orderPage.loadingZones")
+                        : t("orderPage.selectWilaya")}
                     </option>
-
                     {zones?.map((zone) => (
                       <option key={zone._id} value={zone._id}>
                         {zone.wilaya} — {formatPrice(zone.price)}
@@ -330,10 +278,7 @@ const Order = () => {
                 </label>
 
                 <label className="block">
-                  <span className="label text-muted-foreground">
-                    Address
-                  </span>
-
+                  <span className="label text-muted-foreground">{t("orderPage.addressLabel")}</span>
                   <textarea
                     name="address"
                     value={form.address}
@@ -346,10 +291,7 @@ const Order = () => {
             )}
 
             <label className="block">
-              <span className="label text-muted-foreground">
-                Notes
-              </span>
-
+              <span className="label text-muted-foreground">{t("orderPage.notesLabel")}</span>
               <textarea
                 name="notes"
                 value={form.notes}
@@ -358,23 +300,19 @@ const Order = () => {
                 className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
               />
             </label>
-
           </div>
 
           {/* TOTAL */}
-
           <dl className="mt-10 space-y-2">
-
             <Row
-              label="Subtotal"
+              label={t("orderPage.subtotal")}
               value={formatPrice(cartTotal)}
             />
-
             <Row
               label={
                 form.fulfillment === "delivery"
-                  ? "Delivery"
-                  : "Pickup"
+                  ? t("orderPage.delivery")
+                  : t("orderPage.pickup")
               }
               value={
                 form.fulfillment === "delivery"
@@ -382,24 +320,14 @@ const Order = () => {
                   : "—"
               }
             />
-
             <Row
-              label="Total"
+              label={t("orderPage.total")}
               value={formatPrice(estimatedTotal)}
               strong
             />
-
           </dl>
 
-          {/* ERROR */}
-
-          {error && (
-            <p className="mt-6 text-sm text-shu">
-              {error}
-            </p>
-          )}
-
-          {/* SUBMIT */}
+          {error && <p className="mt-6 text-sm text-shu">{error}</p>}
 
           <Button
             type="submit"
@@ -409,14 +337,14 @@ const Order = () => {
             onClick={handleSubmit}
           >
             {submitting
-              ? "Placing order..."
-              : `Place order — Cash on ${
-                  form.fulfillment === "delivery"
-                    ? "Delivery"
-                    : "Pickup"
-                }`}
+              ? t("orderPage.submitting")
+              : t("orderPage.submit", {
+                  method:
+                    form.fulfillment === "delivery"
+                      ? t("orderPage.delivery")
+                      : t("orderPage.pickup"),
+                })}
           </Button>
-
         </aside>
       </div>
     </main>
@@ -426,17 +354,8 @@ const Order = () => {
 function Row({ label, value, strong }) {
   return (
     <div className="flex items-baseline justify-between border-b border-border pb-2">
-      <dt className="label text-muted-foreground">
-        {label}
-      </dt>
-
-      <dd
-        className={
-          strong ? "num text-lg" : "num text-xs"
-        }
-      >
-        {value}
-      </dd>
+      <dt className="label text-muted-foreground">{label}</dt>
+      <dd className={strong ? "num text-lg" : "num text-xs"}>{value}</dd>
     </div>
   );
 }
