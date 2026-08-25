@@ -1,13 +1,24 @@
 import { Link } from "react-router-dom";
-import { X } from "lucide-react";
+
+import { Trash2, X } from "lucide-react";
 
 import { useCart } from "../../features/orders/context/CartContext";
+
 import { formatPrice } from "../../features/menu/utils/formatPrice";
+
 import Button from "../../components/ui/Button";
+
 import { cn } from "../../lib/utils";
 
 export default function CartDrawer() {
-  const { lines, total, setQty, open, setOpen } = useCart();
+  const {
+    lines,
+    total,
+    setQty,
+    removeItem,
+    open,
+    setOpen,
+  } = useCart();
 
   return (
     <>
@@ -36,7 +47,10 @@ export default function CartDrawer() {
         {/* Header */}
         <header className="flex items-center justify-between border-b border-border px-6 py-6">
           <div>
-            <p className="label text-shu">The counter</p>
+            <p className="label text-shu">
+              The counter
+            </p>
+
             <h2 className="mt-1 font-display text-2xl leading-none">
               Your order
             </h2>
@@ -103,28 +117,48 @@ export default function CartDrawer() {
                       {formatPrice(item.price)}
                     </p>
 
-                    {/* Quantity */}
-                    <div className="mt-4 flex items-center border border-border w-fit">
+                    {/* Quantity + Remove */}
+                    <div className="mt-4 flex items-center gap-3">
+                      {/* Quantity */}
+                      <div className="flex items-center border border-border">
+                        <button
+                          type="button"
+                          className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
+                          onClick={() =>
+                            setQty(item.id, qty - 1)
+                          }
+                          aria-label={`Decrease ${item.name}`}
+                        >
+                          −
+                        </button>
+
+                        <span className="num w-8 text-center text-xs">
+                          {qty}
+                        </span>
+
+                        <button
+                          type="button"
+                          className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
+                          onClick={() =>
+                            setQty(item.id, qty + 1)
+                          }
+                          aria-label={`Increase ${item.name}`}
+                        >
+                          +
+                        </button>
+                      </div>
+
+                      {/* Remove */}
                       <button
                         type="button"
-                        className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
-                        onClick={() => setQty(item.id, qty - 1)}
-                        aria-label={`Decrease ${item.name}`}
+                        onClick={() => removeItem(item.id)}
+                        aria-label={`Remove ${item.name}`}
+                        className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-shu"
                       >
-                        −
-                      </button>
-
-                      <span className="num w-8 text-center text-xs">
-                        {qty}
-                      </span>
-
-                      <button
-                        type="button"
-                        className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
-                        onClick={() => setQty(item.id, qty + 1)}
-                        aria-label={`Increase ${item.name}`}
-                      >
-                        +
+                        <Trash2
+                          className="h-3.5 w-3.5"
+                          strokeWidth={1.25}
+                        />
                       </button>
                     </div>
                   </div>

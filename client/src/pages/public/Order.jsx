@@ -171,7 +171,6 @@ const Order = () => {
     );
   }
 
-  /* ---------------- ORDER PAGE ---------------- */
 
   return (
     <main className="pt-24 md:pt-32">
@@ -185,11 +184,7 @@ const Order = () => {
         </h1>
       </header>
 
-      {/* Divider */}
-      <div className="shell">
-        <div className="my-12 h-px bg-border" />
-      </div>
-
+      <SectionDivider className="my-12" />
       <div className="shell grid gap-16 pb-28 md:grid-cols-[1fr_0.8fr]">
 
         {/* LEFT — BASKET */}
