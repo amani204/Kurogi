@@ -3,6 +3,7 @@ import PublicLayout from './layouts/PublicLayout';
 import Home from './pages/public/Home';
 import Menu from './pages/public/Menu';
 import Booking from './pages/public/Booking';
+import BookingCancel from './pages/public/BookingCancel';
 import Order from './pages/public/Order';
 import OrderCancel from './pages/public/OrderCancel';
 import Gallery from './pages/public/Gallery';
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/booking" element={<Booking />} />
+        <Route path="/cancel/:token" element={<BookingCancel />} />
         <Route path="/order" element={<Order />} />
         <Route path="/order-cancel/:token" element={<OrderCancel />} />
         <Route path="/gallery" element={<Gallery />} />
