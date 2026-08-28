@@ -43,8 +43,13 @@ const orderRules = [
 ];
 
 const menuItemRules = [
-  body('name').trim().notEmpty().isLength({ max: 100 }),
-  body('description').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
+  body('slug').trim().toLowerCase().matches(/^[a-z0-9-]+$/).withMessage('Slug must be lowercase letters, numbers, and hyphens only').isLength({ max: 60 }),
+  body('name.en').trim().notEmpty().isLength({ max: 100 }),
+  body('name.fr').trim().notEmpty().isLength({ max: 100 }),
+  body('name.ar').trim().notEmpty().isLength({ max: 100 }),
+  body('description.en').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
+  body('description.fr').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
+  body('description.ar').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
   body('price').isFloat({ min: 0 }).toFloat(),
   body('category').trim().notEmpty().toLowerCase(),
   body('photoUrl').optional({ checkFalsy: true }).trim().isURL().withMessage('photoUrl must be a valid URL'),
@@ -54,12 +59,16 @@ const menuItemRules = [
 
 const categoryCreateRules = [
   body('slug').trim().toLowerCase().matches(/^[a-z0-9-]+$/).withMessage('Slug must be lowercase letters, numbers, and hyphens only').isLength({ max: 40 }),
-  body('label').trim().notEmpty().isLength({ max: 50 }),
+  body('label.en').trim().notEmpty().isLength({ max: 50 }),
+  body('label.fr').trim().notEmpty().isLength({ max: 50 }),
+  body('label.ar').trim().notEmpty().isLength({ max: 50 }),
   body('order').optional().isInt({ min: 0 }).toInt(),
 ];
 
 const categoryUpdateRules = [
-  body('label').trim().notEmpty().isLength({ max: 50 }),
+  body('label.en').trim().notEmpty().isLength({ max: 50 }),
+  body('label.fr').trim().notEmpty().isLength({ max: 50 }),
+  body('label.ar').trim().notEmpty().isLength({ max: 50 }),
   body('order').optional().isInt({ min: 0 }).toInt(),
 ];
 
@@ -72,6 +81,22 @@ const deliveryZoneUpdateRules = [
   body('price').isFloat({ min: 0 }).toFloat(),
 ];
 
+const restaurantSettingsRules = [
+  body('name').optional().trim().isLength({ max: 100 }),
+  body('capacityPerSlot').optional().isInt({ min: 1 }).toInt(),
+  body('slotLengthMinutes').optional().isInt({ min: 15 }).toInt(),
+  body('hours').optional().isArray(),
+  body('hours.*.day').optional().isIn(['mon','tue','wed','thu','fri','sat','sun']),
+  body('hours.*.open').optional({ checkFalsy: true }).matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('open must be HH:mm'),
+  body('hours.*.close').optional({ checkFalsy: true }).matches(/^([01]\d|2[0-3]):([0-5]\d)$/).withMessage('close must be HH:mm'),
+  body('contact.phone').optional({ checkFalsy: true }).trim().matches(/^[0-9+\s-]{8,20}$/),
+  body('contact.whatsapp').optional({ checkFalsy: true }).trim().matches(/^[0-9+\s-]{8,20}$/),
+  body('contact.email').optional({ checkFalsy: true }).trim().isEmail().normalizeEmail(),
+  body('contact.address').optional({ checkFalsy: true }).trim().isLength({ max: 300 }),
+  body('contact.facebook').optional({ checkFalsy: true }).trim().isURL().withMessage('facebook must be a valid URL'),
+  body('contact.instagram').optional({ checkFalsy: true }).trim().isURL().withMessage('instagram must be a valid URL'),
+];
+
 module.exports = {
   validate,
   registerRules, loginRules,
@@ -80,4 +105,5 @@ module.exports = {
   menuItemRules,
   categoryCreateRules, categoryUpdateRules,
   deliveryZoneCreateRules, deliveryZoneUpdateRules,
+  restaurantSettingsRules,
 };

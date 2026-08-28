@@ -5,30 +5,32 @@ import { fetchMenu } from "../../features/menu/api";
 import { getMenuItemImage } from "../../features/menu/imageMap";
 import { SectionDivider } from "../../components/public/InkStroke";
 
-const GalleryTile = ({ item, index }) => {
+const GalleryTile = ({ item, index, lang }) => {
   const ref = useReveal();
+  const name = item.name[lang] || item.name.en;
+
   return (
     <figure ref={ref} className={index % 4 === 0 ? "sm:col-span-2" : ""}>
       <div className="group relative overflow-hidden">
         <img
-          src={getMenuItemImage(item.name)}
-          alt={item.name}
+          src={getMenuItemImage(item.slug)}
+          alt={name}
           loading="lazy"
-          className="w-full object-cover grayscale-12 transition-all duration-700 group-hover:scale-105 group-hover:opacity-90"
+          className="w-full object-cover grayscale-[12%] transition-all duration-700 group-hover:scale-105 group-hover:opacity-90"
         />
         <div className="absolute inset-0 flex items-end bg-linear-to-t from-sumi/70 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           <span className="p-5 font-mono text-xs tracking-widest uppercase text-washi">
-            {item.name}
+            {name}
           </span>
         </div>
       </div>
-      <figcaption className="label mt-3 text-muted-foreground">{item.name}</figcaption>
+      <figcaption className="label mt-3 text-muted-foreground">{name}</figcaption>
     </figure>
   );
 };
 
 const Gallery = () => {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { data: items, loading, error } = useFetch(() => fetchMenu({}), []);
 
   if (loading) {
@@ -38,6 +40,7 @@ const Gallery = () => {
       </main>
     );
   }
+
   if (error) {
     return (
       <main className="pt-24 md:pt-32">
@@ -56,8 +59,8 @@ const Gallery = () => {
       </header>
       <SectionDivider className="my-12" />
       <div className="shell grid gap-8 pb-28 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item, index) => (
-          <GalleryTile key={item._id} item={item} index={index} />
+        {(items || []).map((item, index) => (
+          <GalleryTile key={item._id} item={item} index={index} lang={lang} />
         ))}
       </div>
     </main>

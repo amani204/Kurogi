@@ -194,6 +194,15 @@ const ar = {
       increase: "زيادة {{name}}",
       remove: "إزالة {{name}}",
     },
+    contactPage: {
+  eyebrow: 'تواصل معنا',
+  title: 'اتصل بنا',
+  whatsappCta: 'مراسلة عبر واتساب',
+  whatsappMessage: 'مرحبًا، لدي سؤال.',
+  hours: 'ساعات العمل',
+  mapCaption: 'اعثر علينا على الخريطة أدناه.',
+  closed: 'مغلق',
+},
   },
 };
 

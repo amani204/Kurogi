@@ -9,8 +9,12 @@ const categorySchema = new mongoose.Schema({
     lowercase: true,
     match: [/^[a-z0-9-]+$/, 'Slug can only contain lowercase letters, numbers, and hyphens'],
   },
-  label: { type: String, required: true, trim: true, maxlength: 50 },
-  order: { type: Number, default: 0 }, // controls display order of category tabs
+  label: {
+    en: { type: String, required: true, trim: true, maxlength: 50 },
+    fr: { type: String, required: true, trim: true, maxlength: 50 },
+    ar: { type: String, required: true, trim: true, maxlength: 50 },
+  },
+  order: { type: Number, default: 0 },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Category', categorySchema);

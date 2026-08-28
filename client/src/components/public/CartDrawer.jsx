@@ -5,15 +5,14 @@ import { useCart } from "../../features/orders/context/CartContext";
 import { formatPrice } from "../../features/menu/utils/formatPrice";
 import Button from "../../components/ui/Button";
 import { cn } from "../../lib/utils";
-import { useLang } from "../../i18n"; // <-- add
+import { useLang } from "../../i18n";
 
 export default function CartDrawer() {
   const { lines, total, setQty, removeItem, open, setOpen } = useCart();
-  const { t } = useLang(); // <-- add
+  const { t, lang } = useLang();
 
   return (
     <>
-      {/* Overlay */}
       <div
         onClick={() => setOpen(false)}
         className={cn(
@@ -23,7 +22,6 @@ export default function CartDrawer() {
         aria-hidden="true"
       />
 
-      {/* Drawer */}
       <aside
         className={cn(
           "fixed inset-y-0 right-0 z-[61] flex w-full max-w-md flex-col bg-washi",
@@ -33,7 +31,6 @@ export default function CartDrawer() {
         )}
         aria-hidden={!open}
       >
-        {/* Header */}
         <header className="flex items-center justify-between border-b border-border px-6 py-6">
           <div>
             <p className="label text-shu">{t("cart.eyebrow")}</p>
@@ -52,7 +49,6 @@ export default function CartDrawer() {
           </button>
         </header>
 
-        {/* Items */}
         <div className="flex-1 overflow-y-auto px-6">
           {lines.length === 0 ? (
             <div className="py-20">
@@ -70,71 +66,63 @@ export default function CartDrawer() {
             </div>
           ) : (
             <ul>
-              {lines.map(({ item, qty }) => (
-                <li
-                  key={item.id}
-                  className="group flex gap-4 border-b border-border py-6"
-                >
-                  {/* Image */}
-                  <div className="h-20 w-20 shrink-0 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      loading="lazy"
-                      className="h-full w-full object-cover grayscale-[12%] transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
+              {lines.map(({ item, qty }) => {
+                const name = typeof item.name === 'string' ? item.name : (item.name[lang] || item.name.en);
+                return (
+                  <li key={item.id} className="group flex gap-4 border-b border-border py-6">
+                    <div className="h-20 w-20 shrink-0 overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={name}
+                        loading="lazy"
+                        className="h-full w-full object-cover grayscale-[12%] transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
 
-                  {/* Information */}
-                  <div className="min-w-0 flex-1">
-                    <p className="font-display text-lg leading-tight">
-                      {item.name}
-                    </p>
-                    <p className="num mt-2 text-xs text-muted-foreground">
-                      {formatPrice(item.price)}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-display text-lg leading-tight">{name}</p>
+                      <p className="num mt-2 text-xs text-muted-foreground">
+                        {formatPrice(item.price)}
+                      </p>
 
-                    {/* Quantity + Remove */}
-                    <div className="mt-4 flex items-center gap-3">
-                      {/* Quantity */}
-                      <div className="flex items-center border border-border">
+                      <div className="mt-4 flex items-center gap-3">
+                        <div className="flex items-center border border-border">
+                          <button
+                            type="button"
+                            className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
+                            onClick={() => setQty(item.id, qty - 1)}
+                            aria-label={t("cart.decrease", { name })}
+                          >
+                            −
+                          </button>
+                          <span className="num w-8 text-center text-xs">{qty}</span>
+                          <button
+                            type="button"
+                            className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
+                            onClick={() => setQty(item.id, qty + 1)}
+                            aria-label={t("cart.increase", { name })}
+                          >
+                            +
+                          </button>
+                        </div>
+
                         <button
                           type="button"
-                          className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
-                          onClick={() => setQty(item.id, qty - 1)}
-                          aria-label={t("cart.decrease", { name: item.name })}
+                          onClick={() => removeItem(item.id)}
+                          aria-label={t("cart.remove", { name })}
+                          className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-shu"
                         >
-                          −
-                        </button>
-                        <span className="num w-8 text-center text-xs">{qty}</span>
-                        <button
-                          type="button"
-                          className="num px-3 py-1.5 text-xs transition-colors hover:bg-sumi hover:text-washi"
-                          onClick={() => setQty(item.id, qty + 1)}
-                          aria-label={t("cart.increase", { name: item.name })}
-                        >
-                          +
+                          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.25} />
                         </button>
                       </div>
-
-                      {/* Remove */}
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        aria-label={t("cart.remove", { name: item.name })}
-                        className="flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-shu"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.25} />
-                      </button>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
 
-        {/* Footer */}
         <footer className="border-t border-border px-6 py-6">
           <div className="flex items-baseline justify-between">
             <span className="label text-muted-foreground">{t("cart.total")}</span>
@@ -142,12 +130,7 @@ export default function CartDrawer() {
           </div>
 
           <div className="mt-6">
-            <Button
-              to="/order"
-              variant="primary"
-              className="w-full"
-              onClick={() => setOpen(false)}
-            >
+            <Button to="/order" variant="primary" className="w-full" onClick={() => setOpen(false)}>
               {t("cart.checkout")}
             </Button>
           </div>

@@ -194,6 +194,15 @@ const fr = {
       increase: "Augmenter {{name}}",
       remove: "Retirer {{name}}",
     },
+    contactPage: {
+  eyebrow: 'Nous Contacter',
+  title: 'Contact',
+  whatsappCta: 'Message sur WhatsApp',
+  whatsappMessage: "Bonjour, j'ai une question.",
+  hours: 'Horaires',
+  mapCaption: 'Retrouvez-nous sur la carte ci-dessous.',
+  closed: 'Fermé',
+},
   },
 };
 

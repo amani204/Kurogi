@@ -1,9 +1,8 @@
 const Category = require('../models/category');
 const MenuItem = require('../models/MenuItem');
 
-// public — menu page tabs need this
 const getCategories = async (req, res) => {
-  const categories = await Category.find().sort({ order: 1, label: 1 });
+  const categories = await Category.find().sort({ order: 1, 'label.en': 1 });
   res.json(categories);
 };
 

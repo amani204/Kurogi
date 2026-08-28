@@ -6,27 +6,18 @@ import { useFetch } from "../../hooks/useFetch";
 import { fetchDeliveryZones, submitOrder } from "../../features/orders/api";
 import { formatPrice } from "../../features/menu/utils/formatPrice";
 import Button from "../../components/ui/Button";
-import { InkCheck } from "../../components/public/InkStroke";
-import { SectionDivider } from "../../components/public/InkStroke";
+import { InkCheck, SectionDivider } from "../../components/public/InkStroke";
 
 const initialForm = {
-  customerName: "",
-  phone: "",
-  email: "",
-  fulfillment: "pickup",
-  wilaya: "",
-  address: "",
-  notes: "",
+  customerName: "", phone: "", email: "",
+  fulfillment: "pickup", wilaya: "", address: "", notes: "",
 };
 
 const Order = () => {
   const { lines, total: cartTotal, clearCart } = useCart();
-  const { t } = useLang(); 
+  const { t, lang } = useLang();
 
-  const { data: zones, loading: zonesLoading } = useFetch(
-    fetchDeliveryZones,
-    []
-  );
+  const { data: zones, loading: zonesLoading } = useFetch(fetchDeliveryZones, []);
 
   const [form, setForm] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
@@ -38,31 +29,22 @@ const Order = () => {
     [zones, form.wilaya]
   );
 
-  const deliveryFee =
-    form.fulfillment === "delivery" ? selectedZone?.price || 0 : 0;
+  const deliveryFee = form.fulfillment === "delivery" ? selectedZone?.price || 0 : 0;
   const estimatedTotal = cartTotal + deliveryFee;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
-    if (lines.length === 0) {
-      return setError(t("orderPage.errors.emptyCart"));
-    }
-    if (form.fulfillment === "delivery" && !form.wilaya) {
-      return setError(t("orderPage.errors.noZone"));
-    }
+    if (lines.length === 0) return setError(t("orderPage.errors.emptyCart"));
+    if (form.fulfillment === "delivery" && !form.wilaya) return setError(t("orderPage.errors.noZone"));
 
     setSubmitting(true);
-
     try {
       const payload = {
         customerName: form.customerName,
@@ -72,19 +54,14 @@ const Order = () => {
         address: form.fulfillment === "delivery" ? form.address : undefined,
         deliveryZoneId: form.fulfillment === "delivery" ? form.wilaya : undefined,
         notes: form.notes || undefined,
-        items: lines.map((line) => ({
-          menuItemId: line.item.id,
-          quantity: line.qty,
-        })),
+        items: lines.map((line) => ({ menuItemId: line.item.id, quantity: line.qty })),
       };
 
       const data = await submitOrder(payload);
       setResult(data);
       clearCart();
     } catch (err) {
-      setError(
-        err.response?.data?.message || t("orderPage.errors.generic")
-      );
+      setError(err.response?.data?.message || t("orderPage.errors.generic"));
     } finally {
       setSubmitting(false);
     }
@@ -103,13 +80,13 @@ const Order = () => {
 
         <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
           {t("orderPage.successMessage", {
-            name: orderPage.customerName,
-            total: formatPrice(orderPage.totalPrice),
-            method: orderPage.fulfillment === "delivery" ? t("orderPage.delivery") : t("orderPage.pickup"),
+            name: order.customerName,
+            total: formatPrice(order.totalPrice),
+            method: order.fulfillment === "delivery" ? t("orderPage.delivery") : t("orderPage.pickup"),
           })}
         </p>
-
         <a
+        
           href={whatsappLink}
           target="_blank"
           rel="noopener noreferrer"
@@ -120,10 +97,7 @@ const Order = () => {
 
         <p className="mt-6 text-sm text-muted-foreground">
           {t("orderPage.cancelPrompt")}{' '}
-          <Link
-            to={`/order-cancel/${orderPage.cancelToken}`}
-            className="hairline-link text-foreground"
-          >
+          <Link to={`/order-cancel/${order.cancelToken}`} className="hairline-link text-foreground">
             {t("orderPage.cancelLink")}
           </Link>
         </p>
@@ -146,7 +120,7 @@ const Order = () => {
 
         <section className="shell pb-28">
           <p className="text-sm text-muted-foreground">
-            {t("orderPage.emptyCartText")}{' '}
+            {t("orderPage.empty")}{' '}
             <Link to="/menu" className="hairline-link text-foreground">
               {t("orderPage.browseMenu")}
             </Link>
@@ -157,6 +131,7 @@ const Order = () => {
     );
   }
 
+  /* ---------------- ORDER PAGE ---------------- */
   return (
     <main className="pt-24 md:pt-32">
       <header className="shell">
@@ -169,182 +144,132 @@ const Order = () => {
       <SectionDivider className="my-12" />
 
       <div className="shell grid gap-16 pb-28 md:grid-cols-[1fr_0.8fr]">
-        {/* LEFT — BASKET */}
         <section>
-          <p className="label text-muted-foreground">{t("orderPage.basketTitle")}</p>
+          <p className="label text-muted-foreground">{t("orderPage.basket")}</p>
           <ul className="mt-6">
-            {lines.map(({ item, qty }) => (
-              <li
-                key={item.id}
-                className="flex items-center gap-5 border-t border-border py-5"
-              >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  loading="lazy"
-                  className="h-16 w-16 shrink-0 object-cover grayscale-15"
-                />
-                <div className="flex-1">
-                  <p className="font-display text-lg leading-tight">{item.name}</p>
-                  <p className="num mt-1 text-xs text-muted-foreground">
-                    {formatPrice(item.price)}
-                  </p>
-                </div>
-                <div className="flex items-center border border-border">
-                  <span className="num px-3 py-1 text-xs">×{qty}</span>
-                </div>
-              </li>
-            ))}
+            {lines.map(({ item, qty }) => {
+              const name = typeof item.name === 'string' ? item.name : (item.name[lang] || item.name.en);
+              return (
+                <li key={item.id} className="flex items-center gap-5 border-t border-border py-5">
+                  <img
+                    src={item.image}
+                    alt={name}
+                    loading="lazy"
+                    className="h-16 w-16 shrink-0 object-cover grayscale-15"
+                  />
+                  <div className="flex-1">
+                    <p className="font-display text-lg leading-tight">{name}</p>
+                    <p className="num mt-1 text-xs text-muted-foreground">
+                      {formatPrice(item.price)}
+                    </p>
+                  </div>
+                  <div className="flex items-center border border-border">
+                    <span className="num px-3 py-1 text-xs">×{qty}</span>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
 
-        {/* RIGHT — FORM */}
         <aside>
-          {/* Pickup / Delivery */}
-          <div className="flex gap-6">
-            {["pickup", "delivery"].map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() =>
-                  setForm((prev) => ({
-                    ...prev,
-                    fulfillment: option,
-                  }))
-                }
-                data-active={form.fulfillment === option}
-                className="hairline-link label text-muted-foreground data-[active=true]:text-foreground"
-              >
-                {t(`orderPage.fulfillment.${option}`)}
-              </button>
-            ))}
-          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="flex gap-6">
+              {["pickup", "delivery"].map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setForm((prev) => ({ ...prev, fulfillment: option }))}
+                  data-active={form.fulfillment === option}
+                  className="hairline-link label text-muted-foreground data-[active=true]:text-foreground"
+                >
+                  {t(`orderPage.${option}`)}
+                </button>
+              ))}
+            </div>
 
-          {/* Customer fields */}
-          <div className="mt-8 grid gap-6">
-            <label className="block">
-              <span className="label text-muted-foreground">{t("orderPage.nameLabel")}</span>
-              <input
-                name="customerName"
-                value={form.customerName}
-                onChange={handleChange}
-                className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
-              />
-            </label>
+            <div className="mt-8 grid gap-6">
+              <label className="block">
+                <span className="label text-muted-foreground">{t("orderPage.nameLabel")}</span>
+                <input
+                  name="customerName" required value={form.customerName} onChange={handleChange}
+                  className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
+                />
+              </label>
 
-            <label className="block">
-              <span className="label text-muted-foreground">{t("orderPage.phoneLabel")}</span>
-              <input
-                name="phone"
-                value={form.phone}
-                onChange={handleChange}
-                className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
-              />
-            </label>
+              <label className="block">
+                <span className="label text-muted-foreground">{t("orderPage.phoneLabel")}</span>
+                <input
+                  name="phone" required value={form.phone} onChange={handleChange}
+                  className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
+                />
+              </label>
 
-            <label className="block">
-              <span className="label text-muted-foreground">{t("orderPage.emailLabel")}</span>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
-              />
-            </label>
+              <label className="block">
+                <span className="label text-muted-foreground">{t("orderPage.emailLabel")}</span>
+                <input
+                  type="email" name="email" value={form.email} onChange={handleChange}
+                  className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
+                />
+              </label>
 
-            {/* Delivery fields */}
-            {form.fulfillment === "delivery" && (
-              <>
-                <label className="block">
-                  <span className="label text-muted-foreground">{t("orderPage.wilayaLabel")}</span>
-                  <select
-                    name="wilaya"
-                    value={form.wilaya}
-                    onChange={handleChange}
-                    className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
-                  >
-                    <option value="" disabled>
-                      {zonesLoading
-                        ? t("orderPage.loadingZones")
-                        : t("orderPage.selectWilaya")}
-                    </option>
-                    {zones?.map((zone) => (
-                      <option key={zone._id} value={zone._id}>
-                        {zone.wilaya} — {formatPrice(zone.price)}
+              {form.fulfillment === "delivery" && (
+                <>
+                  <label className="block">
+                    <span className="label text-muted-foreground">{t("orderPage.wilayaLabel")}</span>
+                    <select
+                      name="wilaya" required value={form.wilaya} onChange={handleChange}
+                      className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
+                    >
+                      <option value="" disabled>
+                        {zonesLoading ? t("orderPage.loadingZones") : t("orderPage.selectWilaya")}
                       </option>
-                    ))}
-                  </select>
-                </label>
+                      {zones?.map((zone) => (
+                        <option key={zone._id} value={zone._id}>
+                          {zone.wilaya} — {formatPrice(zone.price)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-                <label className="block">
-                  <span className="label text-muted-foreground">{t("orderPage.addressLabel")}</span>
-                  <textarea
-                    name="address"
-                    value={form.address}
-                    onChange={handleChange}
-                    rows={2}
-                    className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
-                  />
-                </label>
-              </>
-            )}
+                  <label className="block">
+                    <span className="label text-muted-foreground">{t("orderPage.addressLabel")}</span>
+                    <textarea
+                      name="address" required value={form.address} onChange={handleChange} rows={2}
+                      className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
+                    />
+                  </label>
+                </>
+              )}
 
-            <label className="block">
-              <span className="label text-muted-foreground">{t("orderPage.notesLabel")}</span>
-              <textarea
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                rows={2}
-                className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
+              <label className="block">
+                <span className="label text-muted-foreground">{t("orderPage.notesLabel")}</span>
+                <textarea
+                  name="notes" value={form.notes} onChange={handleChange} rows={2}
+                  className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
+                />
+              </label>
+            </div>
+
+            <dl className="mt-10 space-y-2">
+              <Row label={t("orderPage.subtotal")} value={formatPrice(cartTotal)} />
+              <Row
+                label={form.fulfillment === "delivery" ? t("orderPage.delivery") : t("orderPage.pickup")}
+                value={form.fulfillment === "delivery" ? formatPrice(deliveryFee) : "—"}
               />
-            </label>
-          </div>
+              <Row label={t("orderPage.total")} value={formatPrice(estimatedTotal)} strong />
+            </dl>
 
-          {/* TOTAL */}
-          <dl className="mt-10 space-y-2">
-            <Row
-              label={t("orderPage.subtotal")}
-              value={formatPrice(cartTotal)}
-            />
-            <Row
-              label={
-                form.fulfillment === "delivery"
-                  ? t("orderPage.delivery")
-                  : t("orderPage.pickup")
-              }
-              value={
-                form.fulfillment === "delivery"
-                  ? formatPrice(deliveryFee)
-                  : "—"
-              }
-            />
-            <Row
-              label={t("orderPage.total")}
-              value={formatPrice(estimatedTotal)}
-              strong
-            />
-          </dl>
+            {error && <p className="mt-6 text-sm text-shu">{error}</p>}
 
-          {error && <p className="mt-6 text-sm text-shu">{error}</p>}
-
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={submitting}
-            className="mt-8 w-full"
-            onClick={handleSubmit}
-          >
-            {submitting
-              ? t("orderPage.submitting")
-              : t("orderPage.submit", {
-                  method:
-                    form.fulfillment === "delivery"
-                      ? t("orderPage.delivery")
-                      : t("orderPage.pickup"),
-                })}
-          </Button>
+            <Button type="submit" variant="primary" disabled={submitting} className="mt-8 w-full">
+              {submitting
+                ? t("orderPage.submitting")
+                : t("orderPage.submit", {
+                    method: form.fulfillment === "delivery" ? t("orderPage.delivery") : t("orderPage.pickup"),
+                  })}
+            </Button>
+          </form>
         </aside>
       </div>
     </main>

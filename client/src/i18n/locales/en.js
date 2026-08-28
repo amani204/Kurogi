@@ -198,7 +198,17 @@ const en = {
       increase: "Increase {{name}}",
       remove: "Remove {{name}}",
     },
+    contactPage: {
+  eyebrow: 'Get in Touch',
+  title: 'Contact',
+  whatsappCta: 'Message on WhatsApp',
+  whatsappMessage: 'Hello, I have a question.',
+  hours: 'Hours',
+  mapCaption: 'Find us on the map below.',
+  closed: 'Closed',
+},
   },
+  
 };
 
 export default en;

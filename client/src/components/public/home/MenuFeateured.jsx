@@ -1,29 +1,27 @@
-
 import { useFetch } from "../../../hooks/useFetch";
 import { useReveal } from "../../../hooks/gsap/useReveal";
 import { fetchMenu } from "../../../features/menu/api";
 import { getMenuItemImage } from "../../../features/menu/imageMap";
 import { useLang } from "../../../i18n";
 
-const DishCard = ({ item }) => {
+const DishCard = ({ item, lang }) => {
   const ref = useReveal();
-  const { t } = useLang();
+
+  const name = item.name[lang] || item.name.en;
+  const description = item.description?.[lang] || item.description?.en || '';
 
   return (
-    <article
-      ref={ref}
-      className="group opacity-0"
-    >
+    <article ref={ref} className="group opacity-0">
       <div className="overflow-hidden">
         <img
-          src={getMenuItemImage(item.name)}
-          alt={item.name}
+          src={getMenuItemImage(item.slug)}
+          alt={name}
           loading="lazy"
           className="
             aspect-4/5
             w-full
             object-cover
-            grayscale-12
+            grayscale-[12%]
             brightness-90
             transition-all
             duration-700
@@ -36,29 +34,24 @@ const DishCard = ({ item }) => {
 
       <div className="mt-4 flex items-baseline justify-between gap-4">
         <h3 className="font-display text-xl leading-tight text-sumi">
-          {item.name}
+          {name}
         </h3>
-
         <span className="font-mono text-sm text-sumi whitespace-nowrap">
           {item.price} DA
         </span>
       </div>
 
       <p className="mt-2 text-sm leading-relaxed text-sumi/60">
-        {item.description}
+        {description}
       </p>
     </article>
   );
 };
 
 const FeaturedDishes = () => {
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
-  const {
-    data: items,
-    loading,
-    error,
-  } = useFetch(
+  const { data: items, loading, error } = useFetch(
     () => fetchMenu({ featured: true }),
     []
   );
@@ -66,7 +59,7 @@ const FeaturedDishes = () => {
   if (loading) {
     return (
       <section className="shell py-28 text-center text-sumi/40">
-        {t("featuredDishes.loading")}
+        {t("public.home.featuredLoading")}
       </section>
     );
   }
@@ -77,24 +70,19 @@ const FeaturedDishes = () => {
 
   return (
     <section className="shell pb-16 md:pb-24">
-      <p className="label text-shu">
-        {t("featuredDishes.eyebrow")}
-      </p>
+      <p className="label text-shu">{t("public.home.featuredEyebrow")}</p>
 
       <h2 className="mt-5 max-w-2xl font-display text-4xl leading-tight md:text-5xl">
-        {t("featuredDishes.title")}
+        {t("public.home.featuredTitle")}
       </h2>
 
       <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
-        {t("featuredDishes.description")}
+        {t("public.home.featuredDescription")}
       </p>
 
       <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
-          <DishCard
-            key={item._id}
-            item={item}
-          />
+          <DishCard key={item._id} item={item} lang={lang} />
         ))}
       </div>
     </section>
@@ -102,4 +90,3 @@ const FeaturedDishes = () => {
 };
 
 export default FeaturedDishes;
-

@@ -5,7 +5,7 @@ import Button from "../../components/ui/Button";
 
 const OrderCancel = () => {
   const { token } = useParams();
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [status, setStatus] = useState("idle"); 
   const [message, setMessage] = useState("");
 
   const handleCancel = async () => {
