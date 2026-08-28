@@ -25,10 +25,13 @@ export default function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const { pathname } = useLocation();
-  const { t } = useLang();
+  const { t, lang } = useLang(); // <-- added lang
   const { count, setOpen } = useCart();
 
   const overHero = pathname === "/" && !scrolled;
+
+  // Determine direction based on language
+  const dir = lang === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,7 +59,7 @@ export default function Nav() {
 
   return (
     <>
-      <header dir="ltr"
+      <header
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
           overHero
@@ -75,7 +78,7 @@ export default function Nav() {
           </Link>
 
           {/* Desktop navigation */}
-          <nav dir="rtl" className="hidden items-center gap-8 md:flex">
+          <nav dir={dir} className="hidden items-center gap-8 md:flex">
             {links.map((link) => (
               <Link
                 key={link.to}
@@ -164,7 +167,7 @@ export default function Nav() {
         >
           <div className="min-h-0">
             <div className="border-t border-washi/15 bg-sumi">
-              <div className="shell flex flex-col py-5">
+              <div dir={dir} className="shell flex flex-col py-5">
                 {/* Navigation links */}
                 {links.map((link, index) => (
                   <Link

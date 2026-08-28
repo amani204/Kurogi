@@ -59,7 +59,7 @@ const FeaturedDishes = () => {
   if (loading) {
     return (
       <section className="shell py-28 text-center text-sumi/40">
-        {t("public.home.featuredLoading")}
+        {t("featuredDishes.loading")}
       </section>
     );
   }
@@ -70,14 +70,14 @@ const FeaturedDishes = () => {
 
   return (
     <section className="shell pb-16 md:pb-24">
-      <p className="label text-shu">{t("public.home.featuredEyebrow")}</p>
+      <p className="label text-shu">{t("featuredDishes.eyebrow")}</p>
 
       <h2 className="mt-5 max-w-2xl font-display text-4xl leading-tight md:text-5xl">
-        {t("public.home.featuredTitle")}
+        {t("featuredDishes.title")}
       </h2>
 
       <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground md:text-base">
-        {t("public.home.featuredDescription")}
+        {t("featuredDishes.description")}
       </p>
 
       <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">

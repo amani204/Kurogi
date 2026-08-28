@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import { useReveal } from "../../../hooks/gsap/useReveal";
@@ -22,16 +23,76 @@ export default function Philosophy() {
   });
 
   const imageRef = useParallax(70);
+  const imageWrapRef = useRef(null);
+
+  useEffect(() => {
+    const wrap = imageWrapRef.current;
+    if (!wrap) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    let ctx;
+    let cancelled = false;
+
+    const init = async () => {
+      const { gsap } = await import("gsap");
+      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+
+      if (cancelled) return;
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      ctx = gsap.context(() => {
+        // Curtain wipe reveal — image unmasks left to right on scroll in
+        gsap.fromTo(
+          wrap,
+          { clipPath: "inset(0 100% 0 0)" },
+          {
+            clipPath: "inset(0 0% 0 0)",
+            duration: 1.4,
+            ease: "power4.inOut",
+            scrollTrigger: {
+              trigger: wrap,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+
+        // Subtle scale-down settle, plays alongside the wipe
+        gsap.fromTo(
+          wrap.querySelector("img"),
+          { scale: 1.15 },
+          {
+            scale: 1,
+            duration: 1.6,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: wrap,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      }, wrap);
+    };
+
+    init();
+
+    return () => {
+      cancelled = true;
+      ctx?.revert();
+    };
+  }, []);
 
   return (
     <section className="overflow-hidden pt-16 pb-28 md:pt-24 md:pb-36">
       <div className="shell">
         <div className="grid gap-16 md:grid-cols-12 md:items-center">
           {/* Text */}
-          <div
-            ref={contentRef}
-            className="md:col-span-4 md:col-start-1"
-          >
+          <div ref={contentRef} className="md:col-span-4 md:col-start-1">
             <p className="philosophy-reveal label text-shu">
               {t("philosophy.eyebrow")}
             </p>
@@ -63,7 +124,10 @@ export default function Philosophy() {
 
           {/* Image */}
           <div className="relative md:col-span-7 md:col-start-6">
-            <div className="aspect-4/5 overflow-hidden bg-nori">
+            <div
+              ref={imageWrapRef}
+              className="aspect-4/5 overflow-hidden bg-nori"
+            >
               <img
                 ref={imageRef}
                 src={chefImage}
