@@ -3,6 +3,8 @@ const router = express.Router();
 const { register, login, logout, me } = require('../controllers/auth.controller');
 const { protect, authorize } = require('../middleware/auth');
 const { validate, registerRules, loginRules } = require('../middleware/validators');
+
+// only a logged-in owner can create new staff accounts
 router.post('/register', protect, authorize('owner'), registerRules, validate, register);
 router.post('/login', loginRules, validate, login);
 router.post('/logout', protect, logout);

@@ -1,9 +1,8 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 
-// only the owner should be able to create staff accounts — this is NOT a public
-// signup endpoint. There's no public "become an owner" route at all; the first
-// owner account is seeded manually (step 7 below).
+// only an owner can create staff accounts — role is always forced to 'staff'
+// here, never trusted from the request body
 const register = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -11,15 +10,13 @@ const register = async (req, res) => {
   if (existing) return res.status(409).json({ message: 'Email already in use' });
 
   const user = await User.create({ name, email, password, role: 'staff' });
+
   generateToken(res, user._id, user.role);
   res.status(201).json({ id: user._id, name: user.name, role: user.role });
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-
-  // deliberately generic error — never reveal whether it was the email or password
-  // that was wrong, that lets attackers enumerate valid accounts
   const genericError = { message: 'Invalid email or password' };
 
   const user = await User.findOne({ email }).select('+password');

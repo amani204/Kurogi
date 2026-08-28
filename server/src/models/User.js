@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    sparse: true, 
+    sparse: true,
     lowercase: true,
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Invalid email'],
@@ -15,10 +15,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 8,
-    select: false, 
+    select: false,
   },
   role: { type: String, enum: ['owner', 'staff'], default: 'staff' },
 }, { timestamps: true });
+
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(12);

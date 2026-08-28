@@ -6,5 +6,4 @@ const { validate, restaurantSettingsRules } = require('../middleware/validators'
 
 router.get('/', getSettings);
 router.put('/', protect, authorize('owner'), restaurantSettingsRules, validate, updateSettings);
-
 module.exports = router;

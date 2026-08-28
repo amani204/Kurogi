@@ -10,7 +10,7 @@ const {
   updateBookingStatus,
 } = require('../controllers/booking.controller');
 
-const { protect } = require('../middleware/auth');
+const { protect, authorize } = require('../middleware/auth');
 const { validate, bookingRules } = require('../middleware/validators');
 
 // Public endpoint limiters
@@ -47,7 +47,7 @@ router.patch(
 );
 
 // Protected admin routes
-router.get('/', protect, getAllBookings);
-router.patch('/:id/status', protect, updateBookingStatus);
+router.get('/', protect, authorize('owner', 'staff'), getAllBookings);
+router.patch('/:id/status', protect, authorize('owner', 'staff'), updateBookingStatus);
 
 module.exports = router;

@@ -8,7 +8,6 @@ const ask = (query) => {
   return new Promise((resolve) => rl.question(query, (answer) => { rl.close(); resolve(answer); }));
 };
 
-// masks the password so it never echoes to the terminal
 const askHidden = (query) => new Promise((resolve) => {
   process.stdout.write(query);
   process.stdin.setRawMode(true);
@@ -24,8 +23,8 @@ const askHidden = (query) => new Promise((resolve) => {
       resolve(input);
       return;
     }
-    if (char === '\u0003') process.exit(); // Ctrl+C
-    if (char === '\u007f') { input = input.slice(0, -1); return; } // backspace
+    if (char === '\u0003') process.exit();
+    if (char === '\u007f') { input = input.slice(0, -1); return; }
     input += char;
   };
   process.stdin.on('data', onData);
