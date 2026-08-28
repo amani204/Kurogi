@@ -1,19 +1,31 @@
-
 import { Link } from "react-router-dom";
-
 import { useReveal } from "../../../hooks/gsap/useReveal";
 import ambienceImage from "../../../assets/home/ambience.jpg";
-import { hours, restaurant } from "../../../features/restaurant/data";
 import { useLang } from "../../../i18n";
+import { useFetch } from "../../../hooks/useFetch";
+import { fetchRestaurantSettings } from "../../../features/restaurant/api";
+
+const DAY_LABELS = {
+  en: { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' },
+  fr: { mon: 'Lun', tue: 'Mar', wed: 'Mer', thu: 'Jeu', fri: 'Ven', sat: 'Sam', sun: 'Dim' },
+  ar: { mon: 'الإثنين', tue: 'الثلاثاء', wed: 'الأربعاء', thu: 'الخميس', fri: 'الجمعة', sat: 'السبت', sun: 'الأحد' },
+};
 
 export default function Location() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const { data: restaurant } = useFetch(fetchRestaurantSettings, []);
 
   const contentRef = useReveal({
     children: "[data-reveal]",
     y: 30,
     stagger: 0.1,
   });
+
+  // fetch hasn't resolved yet — render nothing
+  if (!restaurant) return null;
+
+  const dayLabels = DAY_LABELS[lang] || DAY_LABELS.en;
+  const contact = restaurant.contact || {};
 
   return (
     <section className="relative overflow-hidden">
@@ -33,35 +45,25 @@ export default function Location() {
           className="shell relative z-10 flex h-full flex-col justify-center text-washi"
         >
           <div className="max-w-xl">
-            <p
-              data-reveal
-              className="label text-washi/60"
-            >
+            <p data-reveal className="label text-washi/60">
               {t("location.eyebrow")}
             </p>
 
-            <p
-              data-reveal
-              className="mt-4 text-sm leading-relaxed text-washi/70"
-            >
-              {restaurant.address}
+            <p data-reveal className="mt-4 text-sm leading-relaxed text-washi/70">
+              {contact.address}
             </p>
 
-            <dl
-              data-reveal
-              className="mt-6 max-w-sm space-y-2"
-            >
-              {hours.map((hour) => (
+            <dl data-reveal className="mt-6 max-w-sm space-y-2">
+              {(restaurant.hours || []).map((hour) => (
                 <div
                   key={hour.day}
                   className="flex justify-between gap-8 border-b border-washi/15 pb-2 text-sm"
                 >
                   <dt className="label text-washi/60">
-                    {hour.day}
+                    {dayLabels[hour.day] || hour.day}
                   </dt>
-
                   <dd className="num text-xs text-washi/75">
-                    {hour.time}
+                    {hour.open && hour.close ? `${hour.open} – ${hour.close}` : '—'}
                   </dd>
                 </div>
               ))}
@@ -80,4 +82,3 @@ export default function Location() {
     </section>
   );
 }
-

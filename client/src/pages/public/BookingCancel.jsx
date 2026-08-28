@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { cancelBookingRequest } from "../../features/booking/api";
 import Button from "../../components/ui/Button";
-import { useLang } from "../../i18n"; // <-- add
+import { useLang } from "../../i18n";
 
 const BookingCancel = () => {
   const { token } = useParams();
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
-  const { t } = useLang(); // <-- add
+  const { t } = useLang();
 
   const handleCancel = async () => {
     setStatus("loading");
