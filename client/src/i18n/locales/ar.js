@@ -203,6 +203,31 @@ const ar = {
   mapCaption: 'اعثر علينا على الخريطة أدناه.',
   closed: 'مغلق',
 },
+orderCancel: {
+  eyebrow: "الطلب",
+  title: "إلغاء هذا الطلب؟",
+  warning: "لا يمكن التراجع عن هذا الإجراء.",
+  keep: "الاحتفاظ بالطلب",
+  cancel: "نعم، إلغاء",
+  cancelling: "جاري الإلغاء…",
+  successTitle: "تم إلغاء الطلب",
+  successMessage: "تم إلغاء الطلب.",
+  error: "تعذر إلغاء هذا الطلب.",
+  backToMenu: "العودة إلى القائمة",
+},
+
+bookingCancel: {
+  eyebrow: "الحجز",
+  title: "إلغاء هذا الحجز؟",
+  warning: "لا يمكن التراجع عن هذا الإجراء.",
+  keep: "الاحتفاظ بالحجز",
+  cancel: "نعم، إلغاء",
+  cancelling: "جاري الإلغاء…",
+  successTitle: "تم إلغاء الحجز",
+  successMessage: "تم إلغاء الحجز.",
+  error: "تعذر إلغاء هذا الحجز.",
+  backToHome: "العودة إلى الصفحة الرئيسية",
+},
   },
 };
 

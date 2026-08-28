@@ -2,20 +2,22 @@ import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { cancelOrderRequest } from "../../features/orders/api";
 import Button from "../../components/ui/Button";
+import { useLang } from "../../i18n"; 
 
 const OrderCancel = () => {
   const { token } = useParams();
-  const [status, setStatus] = useState("idle"); 
+  const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
+  const { t } = useLang(); 
 
   const handleCancel = async () => {
     setStatus("loading");
     try {
       const data = await cancelOrderRequest(token);
-      setMessage(data.message || "Order cancelled.");
+      setMessage(data.message || t("orderCancel.successMessage"));
       setStatus("success");
     } catch (err) {
-      setMessage(err.response?.data?.message || "This order could not be cancelled.");
+      setMessage(err.response?.data?.message || t("orderCancel.error"));
       setStatus("error");
     }
   };
@@ -23,10 +25,14 @@ const OrderCancel = () => {
   if (status === "success") {
     return (
       <main className="shell flex min-h-screen flex-col items-center justify-center py-32 text-center">
-        <h1 className="font-display text-4xl md:text-5xl">Order cancelled</h1>
-        <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">{message}</p>
-        <Link to="/menu" className="hairline-link label mt-10 text-foreground">
-          Back to the menu
+        <h1 className="font-display text-4xl md:text-5xl">
+          {t("orderCancel.successTitle")}
+        </h1>
+        <Link
+          to="/menu"
+          className="hairline-link label mt-10 text-foreground"
+        >
+          {t("orderCancel.backToMenu")}
         </Link>
       </main>
     );
@@ -34,20 +40,30 @@ const OrderCancel = () => {
 
   return (
     <main className="shell flex min-h-screen flex-col items-center justify-center py-32 text-center">
-      <p className="label text-shu">Order</p>
-      <h1 className="mt-4 font-display text-4xl md:text-5xl">Cancel this order?</h1>
+      <p className="label text-shu">{t("orderCancel.eyebrow")}</p>
+      <h1 className="mt-4 font-display text-4xl md:text-5xl">
+        {t("orderCancel.title")}
+      </h1>
       <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-        This can't be undone.
+        {t("orderCancel.warning")}
       </p>
 
-      {status === "error" && <p className="mt-4 text-sm text-shu">{message}</p>}
+      {status === "error" && (
+        <p className="mt-4 text-sm text-shu">{message}</p>
+      )}
 
       <div className="mt-10 flex items-center gap-6">
         <Link to="/" className="hairline-link label text-muted-foreground">
-          Keep my order
+          {t("orderCancel.keep")}
         </Link>
-        <Button variant="primary" onClick={handleCancel} disabled={status === "loading"}>
-          {status === "loading" ? "Cancelling..." : "Yes, cancel it"}
+        <Button
+          variant="primary"
+          onClick={handleCancel}
+          disabled={status === "loading"}
+        >
+          {status === "loading"
+            ? t("orderCancel.cancelling")
+            : t("orderCancel.cancel")}
         </Button>
       </div>
     </main>

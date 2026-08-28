@@ -203,6 +203,31 @@ const fr = {
   mapCaption: 'Retrouvez-nous sur la carte ci-dessous.',
   closed: 'Fermé',
 },
+orderCancel: {
+  eyebrow: "Commande",
+  title: "Annuler cette commande ?",
+  warning: "Cette action est irréversible.",
+  keep: "Garder ma commande",
+  cancel: "Oui, annuler",
+  cancelling: "Annulation en cours…",
+  successTitle: "Commande annulée",
+  successMessage: "Commande annulée.",
+  error: "Cette commande n'a pas pu être annulée.",
+  backToMenu: "Retour au menu",
+},
+
+bookingCancel: {
+  eyebrow: "Réservation",
+  title: "Annuler cette réservation ?",
+  warning: "Cette action est irréversible.",
+  keep: "Garder ma réservation",
+  cancel: "Oui, annuler",
+  cancelling: "Annulation en cours…",
+  successTitle: "Réservation annulée",
+  successMessage: "Réservation annulée.",
+  error: "Cette réservation n'a pas pu être annulée.",
+  backToHome: "Retour à l'accueil",
+},
   },
 };
 

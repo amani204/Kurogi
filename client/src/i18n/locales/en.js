@@ -207,6 +207,31 @@ const en = {
   mapCaption: 'Find us on the map below.',
   closed: 'Closed',
 },
+orderCancel: {
+  eyebrow: "Order",
+  title: "Cancel this order?",
+  warning: "This can't be undone.",
+  keep: "Keep my order",
+  cancel: "Yes, cancel it",
+  cancelling: "Cancelling...",
+  successTitle: "Order cancelled",
+  successMessage: "Order cancelled.",
+  error: "This order could not be cancelled.",
+  backToMenu: "Back to the menu",
+},
+
+bookingCancel: {
+  eyebrow: "Reservation",
+  title: "Cancel this booking?",
+  warning: "This can't be undone.",
+  keep: "Keep my booking",
+  cancel: "Yes, cancel it",
+  cancelling: "Cancelling...",
+  successTitle: "Booking cancelled",
+  successMessage: "Booking cancelled.",
+  error: "This booking could not be cancelled.",
+  backToHome: "Back to homepage",
+},
   },
   
 };
