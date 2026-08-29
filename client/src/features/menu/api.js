@@ -47,3 +47,19 @@ export const uploadImage = async (file) => {
   });
   return data.url;
 };
+
+
+export const createCategory = async (payload) => {
+  const { data } = await api.post('/categories', payload);
+  return data;
+};
+
+export const updateCategory = async (id, payload) => {
+  const { data } = await api.put(`/categories/${id}`, payload);
+  return data;
+};
+
+export const deleteCategory = async (id, options = {}) => {
+  const { data } = await api.delete(`/categories/${id}`, { data: options });
+  return data;
+};

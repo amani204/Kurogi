@@ -63,6 +63,10 @@ const categoryCreateRules = [
   body('label.ar').trim().notEmpty().isLength({ max: 50 }),
   body('order').optional().isInt({ min: 0 }).toInt(),
 ];
+const categoryDeleteRules = [
+  body('action').optional().isIn(['delete-items', 'reassign']),
+  body('reassignTo').optional().trim().toLowerCase(),
+];
 
 const categoryUpdateRules = [
   body('label.en').trim().notEmpty().isLength({ max: 50 }),
@@ -105,4 +109,5 @@ module.exports = {
   categoryCreateRules, categoryUpdateRules,
   deliveryZoneCreateRules, deliveryZoneUpdateRules,
   restaurantSettingsRules,
+  categoryDeleteRules
 };
