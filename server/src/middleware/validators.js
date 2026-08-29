@@ -52,11 +52,10 @@ const menuItemRules = [
   body('description.ar').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
   body('price').isFloat({ min: 0 }).toFloat(),
   body('category').trim().notEmpty().toLowerCase(),
-  body('photoUrl').optional({ checkFalsy: true }).trim().isURL().withMessage('photoUrl must be a valid URL'),
+  body('photoUrl').trim().notEmpty().withMessage('Photo URL is required').isURL().withMessage('photoUrl must be a valid URL'),
   body('available').optional().isBoolean(),
   body('featured').optional().isBoolean(),
 ];
-
 const categoryCreateRules = [
   body('slug').trim().toLowerCase().matches(/^[a-z0-9-]+$/).withMessage('Slug must be lowercase letters, numbers, and hyphens only').isLength({ max: 40 }),
   body('label.en').trim().notEmpty().isLength({ max: 50 }),

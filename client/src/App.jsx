@@ -18,7 +18,7 @@ import Dashboard from './pages/admin/Dashboard';
 // Bookings, Orders, MenuEditor, Categories, DeliveryZones, Settings — added as we build each
 import Bookings from './pages/admin/Bookings';
 import Orders from './pages/admin/Orders';
-
+import MenuEditor from './pages/admin/MenuEditor'
 function App() {
   return (
     <AuthProvider>
@@ -41,6 +41,7 @@ function App() {
           <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
           <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+          <Route path="menu" element={<ProtectedRoute role="owner"><MenuEditor /></ProtectedRoute>} />
           {/* next: bookings, orders, menu, categories, delivery-zones, settings */}
         </Route>
       </Routes>

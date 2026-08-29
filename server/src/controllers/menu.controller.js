@@ -47,7 +47,7 @@ const toggleAvailability = async (req, res) => {
   const item = await MenuItem.findOneAndUpdate(
     { _id: req.params.id },
     [{ $set: { available: { $not: '$available' } } }],
-    { new: true }
+    { new: true, updatePipeline: true }
   );
   if (!item) return res.status(404).json({ message: 'Item not found' });
   res.json(item);
@@ -57,7 +57,7 @@ const toggleFeatured = async (req, res) => {
   const item = await MenuItem.findOneAndUpdate(
     { _id: req.params.id },
     [{ $set: { featured: { $not: '$featured' } } }],
-    { new: true }
+    { new: true, updatePipeline: true }
   );
   if (!item) return res.status(404).json({ message: 'Item not found' });
   res.json(item);

@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
 connectDB();
 const app = express();
+const path = require('path');
 
 app.use(helmet());
 app.use(cors({
@@ -17,7 +18,8 @@ app.use(cors({
 app.use(express.json({ limit: '10kb' }));   
 app.use(cookieParser());    
 app.use(sanitizeRequest);      
-
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/api/upload', require('./routes/upload.routes'));
 
 app.use('/api', rateLimit({
   windowMs: 15 * 60 * 1000,

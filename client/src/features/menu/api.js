@@ -12,3 +12,38 @@ export const fetchCategories = async () => {
   const { data } = await api.get('/categories');
   return data;
 };
+
+// --- admin ---
+export const createMenuItem = async (payload) => {
+  const { data } = await api.post('/menu', payload);
+  return data;
+};
+
+export const updateMenuItem = async (id, payload) => {
+  const { data } = await api.put(`/menu/${id}`, payload);
+  return data;
+};
+
+export const deleteMenuItem = async (id) => {
+  const { data } = await api.delete(`/menu/${id}`);
+  return data;
+};
+
+export const toggleAvailability = async (id) => {
+  const { data } = await api.patch(`/menu/${id}/availability`);
+  return data;
+};
+
+export const toggleFeatured = async (id) => {
+  const { data } = await api.patch(`/menu/${id}/featured`);
+  return data;
+};
+
+export const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+  const { data } = await api.post('/upload/image', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data.url;
+};
