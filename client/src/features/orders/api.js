@@ -27,3 +27,18 @@ export const updateOrderStatus = async (id, status) => {
   const { data } = await api.patch(`/orders/${id}/status`, { status });
   return data;
 };
+
+export const createDeliveryZone = async (payload) => {
+  const { data } = await api.post('/delivery-zones', payload);
+  return data;
+};
+
+export const updateDeliveryZone = async (id, price) => {
+  const { data } = await api.put(`/delivery-zones/${id}`, { price });
+  return data;
+};
+
+export const deleteDeliveryZone = async (id) => {
+  const { data } = await api.delete(`/delivery-zones/${id}`);
+  return data;
+};

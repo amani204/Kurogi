@@ -20,6 +20,7 @@ import Bookings from './pages/admin/Bookings';
 import Orders from './pages/admin/Orders';
 import MenuEditor from './pages/admin/MenuEditor'
 import Categories from './pages/admin/Categories'
+import DeliveryZones from './pages/admin/DeliveryZone';
 function App() {
   return (
     <AuthProvider>
@@ -44,7 +45,7 @@ function App() {
           <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
           <Route path="menu" element={<ProtectedRoute role="owner"><MenuEditor /></ProtectedRoute>} />
           <Route path="categories" element={<ProtectedRoute role="owner"><Categories /></ProtectedRoute>} />
-          {/* next: bookings, orders, menu, categories, delivery-zones, settings */}
+        <Route path="delivery-zones" element={<ProtectedRoute role="owner"><DeliveryZones /></ProtectedRoute>} />
         </Route>
       </Routes>
     </AuthProvider>
