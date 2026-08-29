@@ -21,6 +21,7 @@ import Orders from './pages/admin/Orders';
 import MenuEditor from './pages/admin/MenuEditor'
 import Categories from './pages/admin/Categories'
 import DeliveryZones from './pages/admin/DeliveryZone';
+import Settings from './pages/admin/Settings';
 function App() {
   return (
     <AuthProvider>
@@ -46,6 +47,7 @@ function App() {
           <Route path="menu" element={<ProtectedRoute role="owner"><MenuEditor /></ProtectedRoute>} />
           <Route path="categories" element={<ProtectedRoute role="owner"><Categories /></ProtectedRoute>} />
         <Route path="delivery-zones" element={<ProtectedRoute role="owner"><DeliveryZones /></ProtectedRoute>} />
+        <Route path="settings" element={<ProtectedRoute role="owner"><Settings /></ProtectedRoute>} />
         </Route>
       </Routes>
     </AuthProvider>
