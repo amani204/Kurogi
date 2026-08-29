@@ -57,7 +57,7 @@ const menuItems = [
     },
     price: 4000,
     category: "sushi",
-    featured: true,
+    featured: false,
     available: true,
   },
   {
@@ -74,7 +74,7 @@ const menuItems = [
     },
     price: 3500,
     category: "sushi",
-    featured: true,
+    featured: false,
     available: true,
   },
   {
@@ -91,7 +91,7 @@ const menuItems = [
     },
     price: 2000,
     category: "sushi",
-    featured: true,
+    featured: false,
     available: true,
   },
   {

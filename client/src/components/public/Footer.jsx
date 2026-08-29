@@ -33,7 +33,7 @@ export default function Footer() {
     <footer className="bg-sumi text-washi">
       <div className="shell grid gap-14 py-20 md:grid-cols-3 md:py-24">
         <div>
-          <p className="label tracking-[0.42em]">{restaurant.name}</p>
+          <p className="label tracking-[0.42em]">Kurogi</p>
 
           <dl className="mt-8 space-y-1">
             {(restaurant.hours || []).map((hour) => (
