@@ -38,4 +38,24 @@ const me = (req, res) => {
   res.json({ id: req.user._id, name: req.user.name, role: req.user.role });
 };
 
-module.exports = { register, login, logout, me };
+
+
+// owner-only — lists staff accounts (never returns owner accounts or passwords)
+const getStaff = async (req, res) => {
+  const staff = await User.find({ role: 'staff' }).select('name email createdAt');
+  res.json(staff);
+};
+
+// owner-only — remove a staff account
+const deleteStaff = async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+  if (user.role !== 'staff') {
+    return res.status(400).json({ message: 'Only staff accounts can be deleted here' });
+  }
+
+  await user.deleteOne();
+  res.json({ message: 'Staff account removed' });
+};
+
+module.exports = { register, login, logout, me, getStaff, deleteStaff };
