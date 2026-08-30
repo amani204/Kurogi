@@ -7,7 +7,7 @@ const en = {
     order: "Order",
     gallery: "Gallery",
     contact: "Contact",
-
+    currency: "DA", 
     // Common
     reservebtn: "Reserve",
     checkout: "Checkout",
@@ -31,7 +31,7 @@ const en = {
     },
 
     hero: {
-      eyebrow: "Edomae · Paris 1er",
+      eyebrow: "KUROGI",
       titleLine1: "Twelve seats,",
       titleLine2: "one counter,",
       titleLine3: "nothing extra.",
@@ -62,24 +62,21 @@ const en = {
     },
 
     reviews: {
-      eyebrow: "From our guests",
-      title: "The kind of evening that stays with you.",
-      first: {
-        quote:
-          "Beautifully restrained. Every plate felt considered, and nothing was there simply for decoration.",
-        source: "Guest, dinner service",
-      },
-      second: {
-        quote:
-          "The fish was exceptional, but it was the attention to every small detail that made the evening memorable.",
-        source: "Guest, weekend service",
-      },
-      third: {
-        quote:
-          "A quiet room, thoughtful service and food that speaks for itself. Exactly the kind of place we were looking for.",
-        source: "Guest, private dinner",
-      },
-    },
+  eyebrow: "From our guests",
+  title: "The kind of evening that stays with you.",
+  first: {
+    quote: "Beautifully restrained. Every detail considered.",
+    source: "Guest, dinner service",
+  },
+  second: {
+    quote: "Exceptional fish. Perfectly judged.",
+    source: "Guest, weekend service",
+  },
+  third: {
+    quote: "Food that speaks for itself. Exactly what we were looking for.",
+    source: "Guest, private dinner",
+  },
+},
 
     location: {
       eyebrow: "Find us",
@@ -149,11 +146,11 @@ const en = {
       nameLabel: "Name",
       phoneLabel: "Phone",
       emailLabel: "Email",
-      wilayaLabel: "Wilaya",
+      zoneLabel: "Delivery zone",
       addressLabel: "Address",
       notesLabel: "Notes",
       loadingZones: "Loading...",
-      selectWilaya: "Select your wilaya",
+      selectZone: "Select your delivery zone",
       subtotal: "Subtotal",
       delivery: "Delivery",
       pickup: "Pickup",

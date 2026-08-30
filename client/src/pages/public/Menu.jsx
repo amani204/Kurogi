@@ -6,7 +6,7 @@ import { useCart } from '../../features/orders/context/CartContext';
 import { fetchMenu, fetchCategories } from "../../features/menu/api";
 import { getMenuItemImage } from "../../features/menu/imageMap";
 import { SectionDivider } from "../../components/public/InkStroke";
-
+import { formatPrice } from "../../features/menu/utils/formatPrice";
 const MenuRow = ({ item, lang }) => {
   const ref = useReveal();
   const { addItem } = useCart();
@@ -30,7 +30,7 @@ const MenuRow = ({ item, lang }) => {
         src={getMenuItemImage(item.slug)}
         alt={name}
         loading="lazy"
-        className="h-24 w-24 shrink-0 object-cover grayscale-[15%]"
+        className="h-24 w-24 shrink-0 object-cover grayscale-15"
       />
       <div className="flex-1">
         <div className="flex items-baseline justify-between gap-4">
@@ -38,7 +38,7 @@ const MenuRow = ({ item, lang }) => {
             {name}
           </h2>
           <span className="font-mono text-sm whitespace-nowrap text-sumi">
-            {item.price} DA
+            {formatPrice(item.price, lang)}
           </span>
         </div>
         <p className="mt-2 text-sm leading-relaxed text-sumi/60">

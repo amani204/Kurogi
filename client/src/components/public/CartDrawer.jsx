@@ -24,7 +24,7 @@ export default function CartDrawer() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-[61] flex w-full max-w-md flex-col bg-washi",
+          "fixed inset-y-0 right-0 z-61 flex w-full max-w-md flex-col bg-washi",
           "border-l border-border",
           "transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
           open ? "translate-x-0" : "translate-x-full"
@@ -75,7 +75,7 @@ export default function CartDrawer() {
                         src={item.image}
                         alt={name}
                         loading="lazy"
-                        className="h-full w-full object-cover grayscale-[12%] transition-transform duration-700 group-hover:scale-105"
+                        className="h-full w-full object-cover grayscale-12 transition-transform duration-700 group-hover:scale-105"
                       />
                     </div>
 
@@ -126,7 +126,7 @@ export default function CartDrawer() {
         <footer className="border-t border-border px-6 py-6">
           <div className="flex items-baseline justify-between">
             <span className="label text-muted-foreground">{t("cart.total")}</span>
-            <span className="num text-lg">{formatPrice(total)}</span>
+            <span className="num text-lg">{formatPrice(total, lang)}</span>
           </div>
 
           <div className="mt-6">

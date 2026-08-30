@@ -67,7 +67,6 @@ const Order = () => {
     }
   };
 
-  /* ---------------- SUCCESS ---------------- */
   if (result) {
     const { order, whatsappLink } = result;
     return (
@@ -81,12 +80,11 @@ const Order = () => {
         <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
           {t("orderPage.successMessage", {
             name: order.customerName,
-            total: formatPrice(order.totalPrice),
+            total: formatPrice(order.totalPrice, lang),
             method: order.fulfillment === "delivery" ? t("orderPage.delivery") : t("orderPage.pickup"),
           })}
         </p>
         <a
-        
           href={whatsappLink}
           target="_blank"
           rel="noopener noreferrer"
@@ -105,7 +103,6 @@ const Order = () => {
     );
   }
 
-  /* ---------------- EMPTY CART ---------------- */
   if (lines.length === 0) {
     return (
       <main className="pt-24 md:pt-32">
@@ -120,7 +117,7 @@ const Order = () => {
 
         <section className="shell pb-28">
           <p className="text-sm text-muted-foreground">
-            {t("orderPage.empty")}{' '}
+            {t("orderPage.emptyCartText")}{' '}
             <Link to="/menu" className="hairline-link text-foreground">
               {t("orderPage.browseMenu")}
             </Link>
@@ -131,7 +128,6 @@ const Order = () => {
     );
   }
 
-  /* ---------------- ORDER PAGE ---------------- */
   return (
     <main className="pt-24 md:pt-32">
       <header className="shell">
@@ -145,7 +141,7 @@ const Order = () => {
 
       <div className="shell grid gap-16 pb-28 md:grid-cols-[1fr_0.8fr]">
         <section>
-          <p className="label text-muted-foreground">{t("orderPage.basket")}</p>
+          <p className="label text-muted-foreground">{t("orderPage.basketTitle")}</p>
           <ul className="mt-6">
             {lines.map(({ item, qty }) => {
               const name = typeof item.name === 'string' ? item.name : (item.name[lang] || item.name.en);
@@ -160,7 +156,7 @@ const Order = () => {
                   <div className="flex-1">
                     <p className="font-display text-lg leading-tight">{name}</p>
                     <p className="num mt-1 text-xs text-muted-foreground">
-                      {formatPrice(item.price)}
+                      {formatPrice(item.price, lang)}
                     </p>
                   </div>
                   <div className="flex items-center border border-border">
@@ -183,7 +179,7 @@ const Order = () => {
                   data-active={form.fulfillment === option}
                   className="hairline-link label text-muted-foreground data-[active=true]:text-foreground"
                 >
-                  {t(`orderPage.${option}`)}
+                  {t(`orderPage.fulfillment.${option}`)}
                 </button>
               ))}
             </div>
@@ -216,17 +212,17 @@ const Order = () => {
               {form.fulfillment === "delivery" && (
                 <>
                   <label className="block">
-                    <span className="label text-muted-foreground">{t("orderPage.wilayaLabel")}</span>
+                    <span className="label text-muted-foreground">{t("orderPage.zoneLabel")}</span>
                     <select
                       name="wilaya" required value={form.wilaya} onChange={handleChange}
                       className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm outline-none focus:border-shu"
                     >
                       <option value="" disabled>
-                        {zonesLoading ? t("orderPage.loadingZones") : t("orderPage.selectWilaya")}
+                        {zonesLoading ? t("orderPage.loadingZones") : t("orderPage.selectZone")}
                       </option>
                       {zones?.map((zone) => (
                         <option key={zone._id} value={zone._id}>
-                          {zone.wilaya} — {formatPrice(zone.price)}
+                          {zone.wilaya} — {formatPrice(zone.price, lang)}
                         </option>
                       ))}
                     </select>
@@ -252,12 +248,12 @@ const Order = () => {
             </div>
 
             <dl className="mt-10 space-y-2">
-              <Row label={t("orderPage.subtotal")} value={formatPrice(cartTotal)} />
+              <Row label={t("orderPage.subtotal")} value={formatPrice(cartTotal, lang)} />
               <Row
                 label={form.fulfillment === "delivery" ? t("orderPage.delivery") : t("orderPage.pickup")}
-                value={form.fulfillment === "delivery" ? formatPrice(deliveryFee) : "—"}
+                value={form.fulfillment === "delivery" ? formatPrice(deliveryFee, lang) : "—"}
               />
-              <Row label={t("orderPage.total")} value={formatPrice(estimatedTotal)} strong />
+              <Row label={t("orderPage.total")} value={formatPrice(estimatedTotal, lang)} strong />
             </dl>
 
             {error && <p className="mt-6 text-sm text-shu">{error}</p>}

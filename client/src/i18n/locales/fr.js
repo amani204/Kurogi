@@ -6,7 +6,7 @@ const fr = {
     order: "Commander",
     gallery: "Galerie",
     contact: "Contact",
-
+    currency: "DA", 
     reservebtn: "Réserver",
     checkout: "Commander",
     total: "Total",
@@ -29,7 +29,7 @@ const fr = {
     },
 
     hero: {
-      eyebrow: "Edomae · Paris 1er",
+      eyebrow: "KUROGI",
       titleLine1: "Douze places,",
       titleLine2: "un seul comptoir,",
       titleLine3: "rien de plus.",
@@ -60,24 +60,21 @@ const fr = {
     },
 
     reviews: {
-      eyebrow: "Ils en parlent",
-      title: "Le genre de soirée qui reste en mémoire.",
-      first: {
-        quote:
-          "Une cuisine d’une grande justesse. Chaque assiette est pensée avec précision, sans jamais en faire trop.",
-        source: "Client, service du soir",
-      },
-      second: {
-        quote:
-          "Le poisson était remarquable, mais c’est l’attention portée à chaque détail qui a rendu la soirée mémorable.",
-        source: "Client, service du week-end",
-      },
-      third: {
-        quote:
-          "Une salle paisible, un service attentif et une cuisine qui se suffit à elle-même. Exactement ce que nous recherchions.",
-        source: "Client, dîner privé",
-      },
-    },
+  eyebrow: "Nos convives",
+  title: "Le genre de soirée qui reste avec vous.",
+  first: {
+    quote: "Magnifiquement sobre. Chaque détail est pensé.",
+    source: "Client, dîner",
+  },
+  second: {
+    quote: "Poisson exceptionnel. Parfaitement maîtrisé.",
+    source: "Client, week-end",
+  },
+  third: {
+    quote: "Une cuisine qui parle d'elle-même. Exactement ce qu'on cherchait.",
+    source: "Client, dîner privé",
+  },
+},
 
     location: {
       eyebrow: "Nous trouver",
@@ -146,11 +143,11 @@ const fr = {
       nameLabel: "Nom",
       phoneLabel: "Téléphone",
       emailLabel: "E-mail",
-      wilayaLabel: "Wilaya",
+      zoneLabel: "Zone de livraison",
       addressLabel: "Adresse",
       notesLabel: "Remarques",
       loadingZones: "Chargement…",
-      selectWilaya: "Sélectionnez votre wilaya",
+      selectZone: "Sélectionnez votre zone de livraison",
       subtotal: "Sous-total",
       delivery: "Livraison",
       pickup: "Emporter",

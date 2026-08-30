@@ -3,6 +3,7 @@ import { useReveal } from "../../../hooks/gsap/useReveal";
 import { fetchMenu } from "../../../features/menu/api";
 import { getMenuItemImage } from "../../../features/menu/imageMap";
 import { useLang } from "../../../i18n";
+import { formatPrice } from "../../../features/menu/utils/formatPrice";  // ← Add this import
 
 const DishCard = ({ item, lang }) => {
   const ref = useReveal();
@@ -21,7 +22,7 @@ const DishCard = ({ item, lang }) => {
             aspect-4/5
             w-full
             object-cover
-            grayscale-[12%]
+            grayscale-12
             brightness-90
             transition-all
             duration-700
@@ -37,7 +38,7 @@ const DishCard = ({ item, lang }) => {
           {name}
         </h3>
         <span className="font-mono text-sm text-sumi whitespace-nowrap">
-          {item.price} DA
+          {formatPrice(item.price, lang)}  
         </span>
       </div>
 
