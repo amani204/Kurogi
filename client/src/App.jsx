@@ -15,13 +15,14 @@ import AdminLayout from './layouts/AdminLayout';
 import ProtectedRoute from './components/admin/ProtectedRoutes';
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
-// Bookings, Orders, MenuEditor, Categories, DeliveryZones, Settings — added as we build each
 import Bookings from './pages/admin/Bookings';
 import Orders from './pages/admin/Orders';
-import MenuEditor from './pages/admin/MenuEditor'
-import Categories from './pages/admin/Categories'
+import MenuEditor from './pages/admin/MenuEditor';
+import Categories from './pages/admin/Categories';
 import DeliveryZones from './pages/admin/DeliveryZone';
 import Settings from './pages/admin/Settings';
+import Users from './pages/admin/Users';
+
 function App() {
   return (
     <AuthProvider>
@@ -44,10 +45,11 @@ function App() {
           <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
           <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+          <Route path="users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
           <Route path="menu" element={<ProtectedRoute role="owner"><MenuEditor /></ProtectedRoute>} />
           <Route path="categories" element={<ProtectedRoute role="owner"><Categories /></ProtectedRoute>} />
-        <Route path="delivery-zones" element={<ProtectedRoute role="owner"><DeliveryZones /></ProtectedRoute>} />
-        <Route path="settings" element={<ProtectedRoute role="owner"><Settings /></ProtectedRoute>} />
+          <Route path="delivery-zones" element={<ProtectedRoute role="owner"><DeliveryZones /></ProtectedRoute>} />
+          <Route path="settings" element={<ProtectedRoute role="owner"><Settings /></ProtectedRoute>} />
         </Route>
       </Routes>
     </AuthProvider>

@@ -14,3 +14,8 @@ export const deleteStaffAccount = async (id) => {
   const { data } = await api.delete(`/auth/staff/${id}`);
   return data;
 };
+
+export const updateMe = async (payload) => {
+  const { data } = await api.put('/auth/me', payload);
+  return data;
+};

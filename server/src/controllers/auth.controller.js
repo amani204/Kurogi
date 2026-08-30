@@ -58,4 +58,36 @@ const deleteStaff = async (req, res) => {
   res.json({ message: 'Staff account removed' });
 };
 
-module.exports = { register, login, logout, me, getStaff, deleteStaff };
+
+
+// any logged-in user (owner or staff) updates their own name/email/password.
+// changing password requires the current password, to stop a hijacked
+// session from silently locking the real owner out.
+const updateMe = async (req, res) => {
+  const { name, email, currentPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user._id).select('+password');
+
+  if (newPassword) {
+    if (!currentPassword) {
+      return res.status(400).json({ message: 'Current password is required to set a new password' });
+    }
+    const match = await user.comparePassword(currentPassword);
+    if (!match) return res.status(401).json({ message: 'Current password is incorrect' });
+    user.password = newPassword; // re-hashed by the pre-save hook
+  }
+
+  if (name) user.name = name;
+  if (email) user.email = email;
+
+  try {
+    await user.save();
+  } catch (err) {
+    if (err.code === 11000) return res.status(409).json({ message: 'Email already in use' });
+    throw err;
+  }
+
+  res.json({ id: user._id, name: user.name, email: user.email, role: user.role });
+};
+
+module.exports = { register, login, logout, me, getStaff, deleteStaff, updateMe };

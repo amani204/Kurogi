@@ -435,7 +435,7 @@ const Categories = () => {
               variant="primary"
               type="submit"
               disabled={saving}
-              className="label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
+              className="label px-6 py-3 transition-colors hover:bg-sumi/90 disabled:opacity-50"
             >
               {saving ? 'Saving…' : editingId ? 'Save changes' : 'Add category'}
             </Button>

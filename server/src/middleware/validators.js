@@ -100,6 +100,12 @@ const restaurantSettingsRules = [
   body('contact.instagram').optional({ checkFalsy: true }).trim().isURL().withMessage('instagram must be a valid URL'),
 ];
 
+const updateMeRules = [
+  body('name').optional().trim().notEmpty().isLength({ max: 100 }),
+  body('email').optional().trim().isEmail().normalizeEmail(),
+  body('currentPassword').optional().notEmpty(),
+  body('newPassword').optional().isLength({ min: 8 }).withMessage('New password must be at least 8 characters').matches(/\d/).withMessage('New password must contain a number'),
+];
 module.exports = {
   validate,
   registerRules, loginRules,
@@ -109,5 +115,5 @@ module.exports = {
   categoryCreateRules, categoryUpdateRules,
   deliveryZoneCreateRules, deliveryZoneUpdateRules,
   restaurantSettingsRules,
-  categoryDeleteRules
+  categoryDeleteRules, updateMeRules
 };

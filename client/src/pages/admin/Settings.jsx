@@ -1,20 +1,16 @@
-// pages/admin/Settings.jsx
+
 import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { fetchRestaurantSettings, updateRestaurantSettings } from '../../features/restaurant/api';
-import { registerStaff, fetchStaff, deleteStaffAccount } from '../../features/auth/api';
-import { cn } from '../../lib/utils';
+import {  fetchStaff } from '../../features/auth/api';
+
 import { 
   Settings as SettingsIcon, 
   Clock, 
-  Users, 
   Phone, 
   Mail, 
   MapPin, 
   Globe,
-  Plus,
-  Trash2,
-  X,
   Save,
   CheckCircle,
   AlertCircle
@@ -96,53 +92,6 @@ const Settings = () => {
       hours: p.hours.map((h) => (h.day === day ? { ...h, [field]: value } : h)),
     }));
   };
-
-  const handleStaffSubmit = async (e) => {
-    e.preventDefault();
-    setStaffError(null);
-    setStaffCreated(null);
-
-    if (!staffForm.name || !staffForm.email || !staffForm.password) {
-      setStaffError('Name, email, and password are all required.');
-      return;
-    }
-    if (staffForm.password.length < 8) {
-      setStaffError('Password must be at least 8 characters.');
-      return;
-    }
-
-    setStaffSaving(true);
-    try {
-      const submittedEmail = staffForm.email;
-      const user = await registerStaff(staffForm);
-      setStaffCreated({ ...user, email: submittedEmail });
-      setStaffForm({ name: '', email: '', password: '' });
-      setStaffRefreshKey((k) => k + 1);
-    } catch (err) {
-      const validationErrors = err.response?.data?.errors;
-      setStaffError(
-        validationErrors?.length
-          ? validationErrors.map((e) => e.msg).join(', ')
-          : err.response?.data?.message || 'Failed to create staff account.'
-      );
-    } finally {
-      setStaffSaving(false);
-    }
-  };
-
-  const handleRemoveStaff = async (id, name) => {
-    if (!confirm(`Remove staff account for ${name}? They'll no longer be able to log in.`)) return;
-    setRemovingId(id);
-    try {
-      await deleteStaffAccount(id);
-      setStaffRefreshKey((k) => k + 1);
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to remove account.');
-    } finally {
-      setRemovingId(null);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -248,109 +197,6 @@ const Settings = () => {
                 className="w-full border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
               />
             </div>
-          </div>
-        </div>
-
-        {/* --- Staff Accounts --- */}
-        <div className="border border-gin bg-white p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Users className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            <h2 className="font-display text-xl">Staff Accounts</h2>
-          </div>
-          <p className="text-xs text-muted-foreground mb-4">
-            Staff can manage bookings and orders, but not the menu or these settings.
-          </p>
-
-          <div className="overflow-x-auto border border-gin">
-            {staffLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <p className="label text-muted-foreground">Loading staff…</p>
-              </div>
-            ) : staffList?.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8">
-                <Users className="h-6 w-6 text-muted-foreground/30" strokeWidth={1.25} />
-                <p className="mt-2 label text-muted-foreground">No staff accounts yet</p>
-              </div>
-            ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gin bg-gin/10">
-                    <th className="px-4 py-3 text-left label text-[0.45rem] tracking-[0.15em] text-muted-foreground">Name</th>
-                    <th className="px-4 py-3 text-left label text-[0.45rem] tracking-[0.15em] text-muted-foreground">Email</th>
-                    <th className="px-4 py-3 text-left label text-[0.45rem] tracking-[0.15em] text-muted-foreground">Added</th>
-                    <th className="px-4 py-3 text-right label text-[0.45rem] tracking-[0.15em] text-muted-foreground"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {staffList?.map((s) => (
-                    <tr key={s._id} className="border-b border-gin/50 last:border-0 transition-colors hover:bg-gin/5">
-                      <td className="px-4 py-3 font-medium">{s.name}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{s.email}</td>
-                      <td className="px-4 py-3 num text-xs text-muted-foreground">
-                        {new Date(s.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => handleRemoveStaff(s._id, s.name)}
-                          disabled={removingId === s._id}
-                          className="label inline-flex items-center gap-1 text-[0.4rem] tracking-[0.1em] text-shu/60 transition-colors hover:text-shu disabled:opacity-40"
-                        >
-                          <Trash2 className="h-3 w-3" strokeWidth={1.5} />
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-
-          <div className="mt-5 border-t border-gin pt-5">
-            <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-3">
-              Add new staff account
-            </p>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <input
-                placeholder="Name"
-                value={staffForm.name}
-                onChange={(e) => setStaffForm((p) => ({ ...p, name: e.target.value }))}
-                className="border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
-              />
-              <input
-                type="email" placeholder="Email"
-                value={staffForm.email}
-                onChange={(e) => setStaffForm((p) => ({ ...p, email: e.target.value }))}
-                className="border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
-              />
-              <input
-                type="password" placeholder="Password (min 8 chars)"
-                value={staffForm.password}
-                onChange={(e) => setStaffForm((p) => ({ ...p, password: e.target.value }))}
-                className="border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
-              />
-            </div>
-
-            {staffError && (
-              <p className="mt-2 label text-shu">
-                <AlertCircle className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
-                {staffError}
-              </p>
-            )}
-            {staffCreated && (
-              <p className="mt-2 label text-nori">
-                <CheckCircle className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
-                Account created for {staffCreated.name} ({staffCreated.email}).
-              </p>
-            )}
-
-            <Button
-            variant='primary'
-              type="button" onClick={handleStaffSubmit} disabled={staffSaving}
-             className="mt-6 label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
-            >
-              {staffSaving ? 'Creating…' : 'Create staff account'}
-            </Button>
           </div>
         </div>
 
@@ -510,8 +356,7 @@ const Settings = () => {
             variant="primary"
             type="submit"
             disabled={saving}
-            className="gap-2 label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
-          >
+            className="gap-2 label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50" >
             <Save className="h-4 w-4" strokeWidth={1.5} />
             {saving ? 'Saving…' : 'Save settings'}
           </Button>
