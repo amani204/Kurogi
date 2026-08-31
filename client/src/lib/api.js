@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api', // proxied to http://localhost:5173/api via vite.config.js
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
 });
 
