@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { fetchRestaurantSettings, updateRestaurantSettings } from '../../features/restaurant/api';
-import {  fetchStaff } from '../../features/auth/api';
+import { fetchStaff } from '../../features/auth/api';
 
 import { 
   Settings as SettingsIcon, 
@@ -16,6 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import { useAdminLang } from '../../i18n/index-admin';
 
 const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 const DAY_LABELS = { 
@@ -42,20 +42,12 @@ const emptyForm = {
 };
 
 const Settings = () => {
+  const { t } = useAdminLang();
   const { data: current, loading } = useFetch(fetchRestaurantSettings, []);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [saved, setSaved] = useState(false);
-  
-  const [staffForm, setStaffForm] = useState({ name: '', email: '', password: '' });
-  const [staffSaving, setStaffSaving] = useState(false);
-  const [staffError, setStaffError] = useState(null);
-  const [staffCreated, setStaffCreated] = useState(null);
-  const [staffRefreshKey, setStaffRefreshKey] = useState(0);
-  const [removingId, setRemovingId] = useState(null);
-
-  const { data: staffList, loading: staffLoading } = useFetch(fetchStaff, [staffRefreshKey]);
 
   useEffect(() => {
     if (!current) return;
@@ -92,13 +84,14 @@ const Settings = () => {
       hours: p.hours.map((h) => (h.day === day ? { ...h, [field]: value } : h)),
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setSaved(false);
 
     if (!form.name || !form.capacityPerSlot) {
-      setError('Restaurant name and capacity per slot are required.');
+      setError(t('settings.nameAndCapacityRequired'));
       return;
     }
 
@@ -124,7 +117,7 @@ const Settings = () => {
       setError(
         validationErrors?.length
           ? validationErrors.map((e) => e.msg).join(', ')
-          : err.response?.data?.message || 'Failed to save settings.'
+          : err.response?.data?.message || t('settings.failedToSave')
       );
     } finally {
       setSaving(false);
@@ -134,35 +127,34 @@ const Settings = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <p className="label text-muted-foreground">Loading settings…</p>
+        <p className="label text-muted-foreground">{t('settings.loading')}</p>
       </div>
     );
   }
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-8">
         <p className="label text-[0.6rem] tracking-[0.3em] text-muted-foreground">
-          Administration · Settings
+          {t('settings.administrationSettings')}
         </p>
-        <h1 className="mt-2 font-display text-4xl leading-tight">Settings</h1>
+        <h1 className="mt-2 font-display text-4xl leading-tight">{t('settings.settingsTitle')}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Restaurant info, hours, and contact details shown on the public site.
+          {t('settings.settingsDescription')}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        {/* --- General --- */}
+        {/* General */}
         <div className="border border-gin bg-white p-6">
           <div className="flex items-center gap-2 mb-4">
             <SettingsIcon className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            <h2 className="font-display text-xl">General</h2>
+            <h2 className="font-display text-xl">{t('settings.general')}</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Restaurant name
+                {t('settings.restaurantName')}
               </label>
               <input
                 value={form.name}
@@ -173,7 +165,7 @@ const Settings = () => {
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Capacity per slot
+                {t('settings.capacityPerSlot')}
               </label>
               <input
                 type="number" min="1"
@@ -183,12 +175,12 @@ const Settings = () => {
                 className="w-full border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
               />
               <p className="mt-1 text-[0.45rem] text-muted-foreground">
-                Max total guests bookable per time slot.
+                {t('settings.capacityPerSlotDescription')}
               </p>
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Slot length (minutes)
+                {t('settings.slotLengthMinutes')}
               </label>
               <input
                 type="number" min="15" step="15"
@@ -200,26 +192,26 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* --- Hours --- */}
+        {/* Hours */}
         <div className="border border-gin bg-white p-6">
           <div className="flex items-center gap-2 mb-4">
             <Clock className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            <h2 className="font-display text-xl">Opening Hours</h2>
+            <h2 className="font-display text-xl">{t('settings.openingHours')}</h2>
           </div>
           <p className="text-xs text-muted-foreground mb-4">
-            Leave both fields blank for a day you're closed.
+            {t('settings.openingHoursDescription')}
           </p>
           <div className="space-y-2">
             {form.hours.map((h) => (
               <div key={h.day} className="flex flex-wrap items-center gap-3">
-                <span className="w-24 text-sm">{DAY_LABELS[h.day]}</span>
+                <span className="w-24 text-sm">{t(`settings.days.${h.day}`)}</span>
                 <input
                   type="time"
                   value={h.open}
                   onChange={(e) => handleHourChange(h.day, 'open', e.target.value)}
                   className="border border-gin bg-transparent px-2 py-1.5 text-sm focus:border-shu focus:outline-none"
                 />
-                <span className="text-xs text-muted-foreground">to</span>
+                <span className="text-xs text-muted-foreground">{t('settings.to')}</span>
                 <input
                   type="time"
                   value={h.close}
@@ -231,17 +223,17 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* --- Contact --- */}
+        {/* Contact */}
         <div className="border border-gin bg-white p-6">
           <div className="flex items-center gap-2 mb-4">
             <Phone className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            <h2 className="font-display text-xl">Contact</h2>
+            <h2 className="font-display text-xl">{t('settings.contact')}</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
                 <Phone className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
-                Phone
+                {t('settings.phone')}
               </label>
               <input
                 value={form.contact.phone}
@@ -252,7 +244,7 @@ const Settings = () => {
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                WhatsApp number
+                {t('settings.whatsapp')}
               </label>
               <input
                 value={form.contact.whatsapp}
@@ -261,13 +253,13 @@ const Settings = () => {
                 className="w-full border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
               />
               <p className="mt-1 text-[0.4rem] text-muted-foreground">
-                Used for booking/order confirmation links. Digits only.
+                {t('settings.whatsappDescription')}
               </p>
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
                 <Mail className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
-                Email
+                {t('settings.email')}
               </label>
               <input
                 type="email"
@@ -279,7 +271,7 @@ const Settings = () => {
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
                 <MapPin className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
-                Address
+                {t('settings.address')}
               </label>
               <input
                 value={form.contact.address}
@@ -290,7 +282,7 @@ const Settings = () => {
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
                 <Globe className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
-                Facebook URL
+                {t('settings.facebook')}
               </label>
               <input
                 value={form.contact.facebook}
@@ -302,7 +294,7 @@ const Settings = () => {
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
                 <Globe className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
-                Instagram URL
+                {t('settings.instagram')}
               </label>
               <input
                 value={form.contact.instagram}
@@ -313,7 +305,7 @@ const Settings = () => {
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Map latitude
+                {t('settings.mapLatitude')}
               </label>
               <input
                 type="number" step="any"
@@ -324,7 +316,7 @@ const Settings = () => {
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Map longitude
+                {t('settings.mapLongitude')}
               </label>
               <input
                 type="number" step="any"
@@ -336,7 +328,6 @@ const Settings = () => {
           </div>
         </div>
 
-        {/* Error / Success messages */}
         {error && (
           <p className="label text-shu">
             <AlertCircle className="inline-block h-3.5 w-3.5 mr-1.5" strokeWidth={1.5} />
@@ -346,19 +337,19 @@ const Settings = () => {
         {saved && (
           <p className="label text-nori">
             <CheckCircle className="inline-block h-3.5 w-3.5 mr-1.5" strokeWidth={1.5} />
-            Settings saved.
+            {t('settings.saved')}
           </p>
         )}
 
-        {/* Save button */}
         <div className="border-t border-gin pt-6">
           <Button
             variant="primary"
             type="submit"
             disabled={saving}
-            className="gap-2 label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50" >
+            className="gap-2 label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
+          >
             <Save className="h-4 w-4" strokeWidth={1.5} />
-            {saving ? 'Saving…' : 'Save settings'}
+            {saving ? t('settings.saving') : t('settings.saveSettings')}
           </Button>
         </div>
       </form>

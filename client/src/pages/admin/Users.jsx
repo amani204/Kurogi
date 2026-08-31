@@ -4,9 +4,11 @@ import { useFetch } from '../../hooks/useFetch';
 import { registerStaff, fetchStaff, deleteStaffAccount, updateMe } from '../../features/auth/api';
 import { Users as UsersIcon, User, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
 import Button from '../../components/ui/Button';
+import { useAdminLang } from '../../i18n/index-admin';
 
 const Users = () => {
   const { user, refreshUser } = useAuth();
+  const { t } = useAdminLang();
 
   // --- My Account ---
   const [profileForm, setProfileForm] = useState({
@@ -22,7 +24,7 @@ const Users = () => {
     setProfileSaved(false);
 
     if (profileForm.newPassword && !profileForm.currentPassword) {
-      setProfileError('Enter your current password to set a new one.');
+      setProfileError(t('users.currentPasswordRequired'));
       return;
     }
 
@@ -43,7 +45,7 @@ const Users = () => {
       setProfileError(
         validationErrors?.length
           ? validationErrors.map((e) => e.msg).join(', ')
-          : err.response?.data?.message || 'Failed to update account.'
+          : err.response?.data?.message || t('users.failedToUpdateAccount')
       );
     } finally {
       setProfileSaving(false);
@@ -69,11 +71,11 @@ const Users = () => {
     setStaffCreated(null);
 
     if (!staffForm.name || !staffForm.email || !staffForm.password) {
-      setStaffError('Name, email, and password are all required.');
+      setStaffError(t('users.staffFieldsRequired'));
       return;
     }
     if (staffForm.password.length < 8) {
-      setStaffError('Password must be at least 8 characters.');
+      setStaffError(t('users.passwordMinLength'));
       return;
     }
 
@@ -85,12 +87,12 @@ const Users = () => {
       setStaffForm({ name: '', email: '', password: '' });
       setStaffRefreshKey((k) => k + 1);
     } catch (err) {
-  console.error('Staff creation error:', err.response?.status, err.response?.data); // add this
-  const validationErrors = err.response?.data?.errors;
+      console.error('Staff creation error:', err.response?.status, err.response?.data);
+      const validationErrors = err.response?.data?.errors;
       setStaffError(
         validationErrors?.length
           ? validationErrors.map((e) => e.msg).join(', ')
-          : err.response?.data?.message || 'Failed to create staff account.'
+          : err.response?.data?.message || t('users.failedToCreateStaff')
       );
     } finally {
       setStaffSaving(false);
@@ -98,13 +100,13 @@ const Users = () => {
   };
 
   const handleRemoveStaff = async (id, name) => {
-    if (!confirm(`Remove staff account for ${name}? They'll no longer be able to log in.`)) return;
+    if (!confirm(t('users.removeStaffConfirm', { name }))) return;
     setRemovingId(id);
     try {
       await deleteStaffAccount(id);
       setStaffRefreshKey((k) => k + 1);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to remove account.');
+      alert(err.response?.data?.message || t('users.failedToRemoveStaff'));
     } finally {
       setRemovingId(null);
     }
@@ -113,22 +115,28 @@ const Users = () => {
   return (
     <div>
       <div className="mb-8">
-        <p className="label text-[0.6rem] tracking-[0.3em] text-muted-foreground">Administration · Users</p>
-        <h1 className="mt-2 font-display text-4xl leading-tight">Users</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Manage your account{user?.role === 'owner' ? ' and staff logins.' : '.'}</p>
+        <p className="label text-[0.6rem] tracking-[0.3em] text-muted-foreground">
+          {t('users.administrationUsers')}
+        </p>
+        <h1 className="mt-2 font-display text-4xl leading-tight">{t('users.usersTitle')}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {user?.role === 'owner' ? t('users.usersDescriptionOwner') : t('users.usersDescriptionStaff')}
+        </p>
       </div>
 
       {/* --- My Account --- */}
       <div className="border border-gin bg-white p-6">
         <div className="flex items-center gap-2 mb-4">
           <User className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-          <h2 className="font-display text-xl">My Account</h2>
+          <h2 className="font-display text-xl">{t('users.myAccount')}</h2>
         </div>
 
         <form onSubmit={handleProfileSubmit} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">Name</label>
+              <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
+                {t('users.name')}
+              </label>
               <input
                 value={profileForm.name}
                 onChange={(e) => setProfileForm((p) => ({ ...p, name: e.target.value }))}
@@ -136,7 +144,9 @@ const Users = () => {
               />
             </div>
             <div>
-              <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">Email</label>
+              <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
+                {t('users.email')}
+              </label>
               <input
                 type="email"
                 value={profileForm.email}
@@ -147,10 +157,14 @@ const Users = () => {
           </div>
 
           <div className="border-t border-gin pt-4">
-            <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-3">Change password (optional)</p>
+            <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-3">
+              {t('users.changePasswordOptional')}
+            </p>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">Current password</label>
+                <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
+                  {t('users.currentPassword')}
+                </label>
                 <input
                   type="password"
                   value={profileForm.currentPassword}
@@ -159,7 +173,9 @@ const Users = () => {
                 />
               </div>
               <div>
-                <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">New password</label>
+                <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
+                  {t('users.newPassword')}
+                </label>
                 <input
                   type="password"
                   value={profileForm.newPassword}
@@ -171,14 +187,25 @@ const Users = () => {
           </div>
 
           {profileError && (
-            <p className="label text-shu"><AlertCircle className="inline-block h-3.5 w-3.5 mr-1.5" strokeWidth={1.5} />{profileError}</p>
+            <p className="label text-shu">
+              <AlertCircle className="inline-block h-3.5 w-3.5 mr-1.5" strokeWidth={1.5} />
+              {profileError}
+            </p>
           )}
           {profileSaved && (
-            <p className="label text-nori"><CheckCircle className="inline-block h-3.5 w-3.5 mr-1.5" strokeWidth={1.5} />Account updated.</p>
+            <p className="label text-nori">
+              <CheckCircle className="inline-block h-3.5 w-3.5 mr-1.5" strokeWidth={1.5} />
+              {t('users.accountUpdated')}
+            </p>
           )}
 
-          <Button variant="primary" type="submit" disabled={profileSaving} className="label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50">
-            {profileSaving ? 'Saving…' : 'Save changes'}
+          <Button 
+            variant="primary" 
+            type="submit" 
+            disabled={profileSaving} 
+            className="label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
+          >
+            {profileSaving ? t('users.saving') : t('users.saveChanges')}
           </Button>
         </form>
       </div>
@@ -188,46 +215,54 @@ const Users = () => {
         <div className="mt-8 border border-gin bg-white p-6">
           <div className="flex items-center gap-2 mb-4">
             <UsersIcon className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-            <h2 className="font-display text-xl">Staff Accounts</h2>
+            <h2 className="font-display text-xl">{t('users.staffAccounts')}</h2>
           </div>
           <p className="text-xs text-muted-foreground mb-4">
-            Staff can manage bookings and orders, but not the menu or settings.
+            {t('users.staffDescription')}
           </p>
 
           <div className="overflow-x-auto border border-gin">
             {staffLoading ? (
               <div className="flex items-center justify-center py-8">
-                <p className="label text-muted-foreground">Loading staff…</p>
+                <p className="label text-muted-foreground">{t('users.loadingStaff')}</p>
               </div>
             ) : staffList?.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8">
                 <UsersIcon className="h-6 w-6 text-muted-foreground/30" strokeWidth={1.25} />
-                <p className="mt-2 label text-muted-foreground">No staff accounts yet</p>
+                <p className="mt-2 label text-muted-foreground">{t('users.noStaffAccounts')}</p>
               </div>
             ) : (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gin bg-gin/10">
-                    <th className="px-4 py-3 text-left label text-[0.45rem] tracking-[0.15em] text-muted-foreground">Name</th>
-                    <th className="px-4 py-3 text-left label text-[0.45rem] tracking-[0.15em] text-muted-foreground">Email</th>
-                    <th className="px-4 py-3 text-left label text-[0.45rem] tracking-[0.15em] text-muted-foreground">Added</th>
+                    <th className="px-4 py-3 text-start label text-[0.45rem] tracking-[0.15em] text-muted-foreground">
+                      {t('users.name')}
+                    </th>
+                    <th className="px-4 py-3 text-center label text-[0.45rem] tracking-[0.15em] text-muted-foreground">
+                      {t('users.email')}
+                    </th>
+                    <th className="px-4 py-3 text-end label text-[0.45rem] tracking-[0.15em] text-muted-foreground">
+                      {t('users.added')}
+                    </th>
                     <th className="px-4 py-3 text-right label text-[0.45rem] tracking-[0.15em] text-muted-foreground"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {staffList?.map((s) => (
                     <tr key={s._id} className="border-b border-gin/50 last:border-0 transition-colors hover:bg-gin/5">
-                      <td className="px-4 py-3 font-medium">{s.name}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{s.email}</td>
-                      <td className="px-4 py-3 num text-xs text-muted-foreground">{new Date(s.createdAt).toLocaleDateString()}</td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-start font-medium">{s.name}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground">{s.email}</td>
+                      <td className="px-4 py-3 num text-end text-xs text-muted-foreground">
+                        {new Date(s.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-end">
                         <button
                           onClick={() => handleRemoveStaff(s._id, s.name)}
                           disabled={removingId === s._id}
-                          className="label inline-flex items-center gap-1 text-[0.4rem] tracking-[0.1em] text-shu/60 transition-colors hover:text-shu disabled:opacity-40"
+                          className="label inline-flex items-center gap-1 text-[0.4rem] tracking-widest text-shu/60 transition-colors hover:text-shu disabled:opacity-40"
                         >
                           <Trash2 className="h-3 w-3" strokeWidth={1.5} />
-                          Remove
+                          {t('users.remove')}
                         </button>
                       </td>
                     </tr>
@@ -238,40 +273,53 @@ const Users = () => {
           </div>
 
           <div className="mt-5 border-t border-gin pt-5">
-            <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-3">Add new staff account</p>
+            <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-3">
+              {t('users.addStaffAccount')}
+            </p>
             <div className="grid gap-3 sm:grid-cols-3">
               <input
-                placeholder="Name"
+                placeholder={t('users.name')}
                 value={staffForm.name}
                 onChange={(e) => setStaffForm((p) => ({ ...p, name: e.target.value }))}
                 className="border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
               />
               <input
-                type="email" placeholder="Email"
+                type="email" 
+                placeholder={t('users.email')}
                 value={staffForm.email}
                 onChange={(e) => setStaffForm((p) => ({ ...p, email: e.target.value }))}
                 className="border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
               />
               <input
-                type="password" placeholder="Password (min 8 chars)"
+                type="password" 
+                placeholder={t('users.passwordMinChars')}
                 value={staffForm.password}
                 onChange={(e) => setStaffForm((p) => ({ ...p, password: e.target.value }))}
                 className="border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
               />
             </div>
 
-            {staffError && <p className="mt-2 label text-shu"><AlertCircle className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />{staffError}</p>}
+            {staffError && (
+              <p className="mt-2 label text-shu">
+                <AlertCircle className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
+                {staffError}
+              </p>
+            )}
             {staffCreated && (
               <p className="mt-2 label text-nori">
                 <CheckCircle className="inline-block h-3 w-3 mr-1" strokeWidth={1.5} />
-                Account created for {staffCreated.name} ({staffCreated.email}).
+                {t('users.accountCreated', { name: staffCreated.name, email: staffCreated.email })}
               </p>
             )}
 
             <Button
-              variant="primary" type="button" onClick={handleStaffSubmit} disabled={staffSaving}
-              className="mt-6 label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50">
-              {staffSaving ? 'Creating…' : 'Create staff account'}
+              variant="primary" 
+              type="button" 
+              onClick={handleStaffSubmit} 
+              disabled={staffSaving}
+              className="mt-6 label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
+            >
+              {staffSaving ? t('users.creating') : t('users.createStaffAccount')}
             </Button>
           </div>
         </div>

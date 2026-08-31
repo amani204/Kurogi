@@ -3,9 +3,12 @@ import { useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/context/AutContext';
 import Button from '../../components/ui/Button';
 import { Mail, LockKeyhole, ArrowRight } from 'lucide-react';
+import { useAdminLang } from '../../i18n/index-admin';
+import LanguageSwitcher from '../../components/admin/LanguageSwitcher';
 
 const Login = () => {
   const { login, logout, user } = useAuth();
+  const { t } = useAdminLang();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,8 +34,8 @@ const Login = () => {
         await logout();
         setError(
           role === 'owner'
-            ? "These credentials belong to a staff account. Switch to the Staff tab above."
-            : "These credentials belong to the owner account. Switch to the Owner tab above."
+            ? t('login.ownerCredentialsError')
+            : t('login.staffCredentialsError')
         );
         return;
       }
@@ -41,7 +44,7 @@ const Login = () => {
       const dest = location.state?.from || '/admin';
       navigate(dest, { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || t('login.loginFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -50,11 +53,22 @@ const Login = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-washi px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <p className="label text-[0.55rem] tracking-[0.35em] text-shu">Internal Access</p>
-          <h1 className="mt-2 font-display text-4xl leading-tight text-sumi">Sign in</h1>
+        {/* Language Switcher - Very Top */}
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher variant="login" />
         </div>
 
+        {/* Header */}
+        <div className="text-center mb-6">
+          <p className="label text-[0.55rem] tracking-[0.35em] text-shu">
+            {t('login.internalAccess')}
+          </p>
+          <h1 className="mt-2 font-display text-4xl leading-tight text-sumi">
+            {t('login.signIn')}
+          </h1>
+        </div>
+
+        {/* Role Tabs */}
         <div className="flex border border-gin">
           {['owner', 'staff'].map((option) => (
             <button
@@ -66,15 +80,17 @@ const Login = () => {
                 ${role === option ? 'bg-sumi text-washi' : 'text-muted-foreground hover:bg-sumi/5'}
               `}
             >
-              {option === 'owner' ? 'Owner' : 'Staff'}
+              {option === 'owner' ? t('login.owner') : t('login.staff')}
             </button>
           ))}
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          {/* Email */}
           <div>
             <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-              Email
+              {t('login.email')}
             </label>
             <div className="relative">
               <Mail
@@ -86,15 +102,16 @@ const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@restaurant.com"
+                placeholder={t('login.emailPlaceholder')}
                 className="w-full border border-gin bg-transparent pl-10 pr-3 py-2.5 text-sm text-sumi placeholder:text-muted-foreground/40 focus:border-shu focus:outline-none"
               />
             </div>
           </div>
 
+          {/* Password */}
           <div>
             <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-              Password
+              {t('login.password')}
             </label>
             <div className="relative">
               <LockKeyhole
@@ -106,18 +123,20 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder={t('login.passwordPlaceholder')}
                 className="w-full border border-gin bg-transparent pl-10 pr-3 py-2.5 text-sm text-sumi placeholder:text-muted-foreground/40 focus:border-shu focus:outline-none"
               />
             </div>
           </div>
 
+          {/* Error */}
           {error && (
             <div className="border border-shu/30 bg-shu/5 px-4 py-3">
               <p className="label text-[0.5rem] tracking-widest text-shu/80">{error}</p>
             </div>
           )}
 
+          {/* Submit Button */}
           <Button
             variant="primary"
             type="submit"
@@ -125,7 +144,7 @@ const Login = () => {
             className="group w-full bg-shu text-washi hover:bg-shu/90"
           >
             <span className="label flex items-center justify-center gap-2 text-[0.55rem] tracking-[0.2em]">
-              {submitting ? 'Signing in…' : `Sign in as ${role === 'owner' ? 'Owner' : 'Staff'}`}
+              {submitting ? t('login.signingIn') : t('login.signInAs', { role: role === 'owner' ? t('login.owner') : t('login.staff') })}
               {!submitting && (
                 <ArrowRight
                   className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
@@ -136,8 +155,9 @@ const Login = () => {
           </Button>
         </form>
 
+        {/* Footer */}
         <p className="mt-6 text-center label text-[0.4rem] tracking-[0.25em] text-muted-foreground/50">
-          Authorized restaurant staff only
+          {t('login.authorizedStaffOnly')}
         </p>
       </div>
     </div>

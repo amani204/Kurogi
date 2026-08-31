@@ -6,9 +6,10 @@ import {
 import { fetchMenu } from '../../features/menu/api';
 import Button from "../../components/ui/Button";
 import { 
-  ChevronDown, ChevronRight, Plus, Edit, Trash2, 
-  X, AlertTriangle, FolderOpen, Package, ArrowRight 
+  ChevronDown, ChevronRight, Edit, Trash2, 
+  X, AlertTriangle, FolderOpen, ArrowRight 
 } from 'lucide-react';
+import { useAdminLang } from '../../i18n/index-admin';
 
 const emptyForm = { slug: '', label: { en: '', fr: '', ar: '' }, order: 0 };
 
@@ -17,24 +18,30 @@ const slugify = (text) =>
 
 const CategoryItemsPreview = ({ categorySlug }) => {
   const { data: items, loading } = useFetch(() => fetchMenu({ category: categorySlug }), [categorySlug]);
+  const { t, lang } = useAdminLang();
 
-  if (loading) return <div className="px-4 py-3 text-xs text-muted-foreground">Loading items...</div>;
+  if (loading) return <div className="px-4 py-3 text-xs text-muted-foreground">{t('categories.loadingItems')}</div>;
   if (!items || items.length === 0) {
-    return <div className="px-4 py-3 text-xs text-muted-foreground">No items in this category.</div>;
+    return <div className="px-4 py-3 text-xs text-muted-foreground">{t('categories.noItems')}</div>;
   }
+
+  // Get item name based on current language
+  const getItemName = (item) => {
+    return item.name?.[lang] || item.name?.en || item.name?.fr || 'Unknown';
+  };
 
   return (
     <div className="flex flex-wrap gap-2 px-4 py-3 bg-gin/10">
       {items.map((item) => (
         <div key={item._id} className="flex items-center gap-2 border border-gin bg-white px-2 py-1.5">
           {item.photoUrl ? (
-            <img src={item.photoUrl} alt={item.name.en} className="h-8 w-8 object-cover" />
+            <img src={item.photoUrl} alt={getItemName(item)} className="h-8 w-8 object-cover" />
           ) : (
             <div className="flex h-8 w-8 items-center justify-center bg-gin/20 text-[0.5rem] text-muted-foreground">
-              No img
+              {t('categories.noImg')}
             </div>
           )}
-          <span className="text-xs">{item.name.en}</span>
+          <span className="text-xs">{getItemName(item)}</span>
         </div>
       ))}
     </div>
@@ -42,6 +49,7 @@ const CategoryItemsPreview = ({ categorySlug }) => {
 };
 
 const Categories = () => {
+  const { t, lang } = useAdminLang();
   const [refreshKey, setRefreshKey] = useState(0);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -53,6 +61,11 @@ const Categories = () => {
   const [deleting, setDeleting] = useState(false);
 
   const { data: categories, loading } = useFetch(fetchCategories, [refreshKey]);
+
+  // Get category label based on current language
+  const getCategoryLabel = (cat) => {
+    return cat.label?.[lang] || cat.label?.en || cat.label?.fr || 'Unknown';
+  };
 
   const resetForm = () => {
     setEditingId(null);
@@ -79,7 +92,7 @@ const Categories = () => {
     setError(null);
 
     if (!form.slug || !form.label.en || !form.label.fr || !form.label.ar) {
-      setError('Slug and all three labels are required.');
+      setError(t('categories.slugAndLabelsRequired'));
       return;
     }
 
@@ -94,14 +107,14 @@ const Categories = () => {
       resetForm();
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save category.');
+      setError(err.response?.data?.message || t('categories.failedToSave'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteClick = async (cat) => {
-    if (!confirm(`Delete "${cat.label.en}"?`)) return;
+    if (!confirm(t('categories.deleteConfirm', { label: getCategoryLabel(cat) }))) return;
 
     setDeleting(true);
     try {
@@ -110,11 +123,11 @@ const Categories = () => {
     } catch (err) {
       if (err.response?.status === 409 && err.response.data?.itemCount) {
         setPendingDelete({
-          id: cat._id, slug: cat.slug, label: cat.label.en,
+          id: cat._id, slug: cat.slug, label: getCategoryLabel(cat),
           itemCount: err.response.data.itemCount,
         });
       } else {
-        alert(err.response?.data?.message || 'Failed to delete category.');
+        alert(err.response?.data?.message || t('categories.failedToDelete'));
       }
     } finally {
       setDeleting(false);
@@ -122,14 +135,14 @@ const Categories = () => {
   };
 
   const handleDeleteItems = async () => {
-    if (!confirm(`Permanently delete all ${pendingDelete.itemCount} item(s) in "${pendingDelete.label}"? This cannot be undone.`)) return;
+    if (!confirm(t('categories.deleteItemsConfirm', { count: pendingDelete.itemCount, label: pendingDelete.label }))) return;
     setDeleting(true);
     try {
       await deleteCategory(pendingDelete.id, { action: 'delete-items' });
       setPendingDelete(null);
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete.');
+      alert(err.response?.data?.message || t('categories.failedToDelete'));
     } finally {
       setDeleting(false);
     }
@@ -144,7 +157,7 @@ const Categories = () => {
       setReassignTarget('');
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to reassign.');
+      alert(err.response?.data?.message || t('categories.failedToReassign'));
     } finally {
       setDeleting(false);
     }
@@ -154,42 +167,39 @@ const Categories = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-8">
         <p className="label text-[0.6rem] tracking-[0.3em] text-muted-foreground">
-          Menu · Categories
+          {t('categories.menuCategories')}
         </p>
-        <h1 className="mt-2 font-display text-4xl leading-tight">Categories</h1>
+        <h1 className="mt-2 font-display text-4xl leading-tight">{t('categories.categoriesTitle')}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Manage the menu's category tabs.
+          {t('categories.categoriesDescription')}
           {categories && (
             <span className="ml-2 num text-muted-foreground">
-              · {categories.length} total
+              · {categories.length} {t('categories.total')}
             </span>
           )}
         </p>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto border border-gin bg-white">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <p className="label text-muted-foreground">Loading categories…</p>
+            <p className="label text-muted-foreground">{t('categories.loading')}</p>
           </div>
         ) : categories?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <FolderOpen className="h-8 w-8 text-muted-foreground/30" strokeWidth={1.25} />
-            <p className="mt-3 label text-muted-foreground">No categories yet</p>
-            <p className="mt-1 text-xs text-muted-foreground">Add your first category below</p>
+            <p className="mt-3 label text-muted-foreground">{t('categories.noCategories')}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t('categories.addFirst')}</p>
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gin bg-gin/10">
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Label (EN)</th>
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Slug</th>
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Order</th>
-                <th className="px-4 py-3 text-right label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Actions</th>
+                <th className="px-4 py-3 text-start label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('categories.label')}</th>
+                <th className="px-4 py-3 text-center label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('categories.slug')}</th>
+                <th className="px-4 py-3 text-end label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('categories.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -207,32 +217,27 @@ const Categories = () => {
                           <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
                         )}
                       </span>
-                      <span className="font-medium">{cat.label.en}</span>
-                      {cat.label.fr && (
-                        <span className="ml-2 text-xs text-muted-foreground">· {cat.label.fr}</span>
-                      )}
-                      {cat.label.ar && (
-                        <span className="ml-2 text-xs text-muted-foreground" dir="rtl">· {cat.label.ar}</span>
-                      )}
+                      <span className="font-medium">{getCategoryLabel(cat)}</span>
                     </td>
-                    <td className="px-4 py-3 num text-xs text-muted-foreground">{cat.slug}</td>
-                    <td className="px-4 py-3 num text-xs">{cat.order}</td>
+                    <td className="px-4 py-3 num text-xs text-center text-muted-foreground">{cat.slug}</td>
                     <td className="px-4 py-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => startEdit(cat)}
-                        className="label inline-flex items-center gap-1 text-[0.45rem] tracking-widest text-muted-foreground transition-colors hover:text-sumi mr-3"
-                      >
-                        <Edit className="h-3 w-3" strokeWidth={1.5} />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(cat)}
-                        disabled={deleting}
-                        className="label inline-flex items-center gap-1 text-[0.45rem] tracking-widest text-shu/60 transition-colors hover:text-shu disabled:opacity-40"
-                      >
-                        <Trash2 className="h-3 w-3" strokeWidth={1.5} />
-                        Delete
-                      </button>
+                      <div className="flex items-center justify-end gap-4">
+                        <button
+                          onClick={() => startEdit(cat)}
+                          className="label inline-flex items-center gap-1 text-[0.45rem] tracking-widest text-muted-foreground transition-colors hover:text-sumi"
+                        >
+                          <Edit className="h-3 w-3" strokeWidth={1.5} />
+                          {t('categories.edit')}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(cat)}
+                          disabled={deleting}
+                          className="label inline-flex items-center gap-1 text-[0.45rem] tracking-widest text-shu/60 transition-colors hover:text-shu disabled:opacity-40"
+                        >
+                          <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+                          {t('categories.delete')}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   {expandedId === cat._id && (
@@ -249,7 +254,7 @@ const Categories = () => {
         )}
       </div>
 
-      {/* --- Decision Dialog: Category has items --- */}
+      {/* Decision Dialog */}
       {pendingDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-sumi/60 p-4">
           <div className="w-full max-w-md bg-white p-6">
@@ -257,13 +262,10 @@ const Categories = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-shu" strokeWidth={1.5} />
-                  <h2 className="font-display text-xl">
-                    "{pendingDelete.label}"
-                  </h2>
+                  <h2 className="font-display text-xl">"{pendingDelete.label}"</h2>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  This category has <span className="num font-medium">{pendingDelete.itemCount}</span> item(s).
-                  Choose what to do with them before deleting.
+                  {t('categories.hasItems', { count: pendingDelete.itemCount })}
                 </p>
               </div>
               <button
@@ -275,16 +277,15 @@ const Categories = () => {
             </div>
 
             <div className="mt-6 space-y-4">
-              {/* Option 1: Delete items too */}
               <div className="border border-shu/20 bg-shu/5 p-4">
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 h-6 w-6 flex items-center justify-center border border-shu/30 bg-shu/10">
                     <Trash2 className="h-3.5 w-3.5 text-shu" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Delete the items too</p>
+                    <p className="text-sm font-medium">{t('categories.deleteItemsOption')}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      Permanently removes all {pendingDelete.itemCount} item(s). Cannot be undone.
+                      {t('categories.deleteItemsWarning', { count: pendingDelete.itemCount })}
                     </p>
                     <button
                       onClick={handleDeleteItems}
@@ -292,29 +293,28 @@ const Categories = () => {
                       className="mt-3 label flex items-center gap-1.5 bg-shu px-4 py-2 text-[0.5rem] tracking-[0.15em] text-washi transition-colors hover:bg-shu/90 disabled:opacity-50"
                     >
                       <Trash2 className="h-3 w-3" strokeWidth={1.5} />
-                      Delete items & category
+                      {t('categories.deleteItemsAndCategory')}
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Option 2: Reassign items */}
               <div className="border border-gin p-4">
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 h-6 w-6 flex items-center justify-center border border-gin">
                     <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Move items to another category</p>
+                    <p className="text-sm font-medium">{t('categories.moveItemsOption')}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                       <select
                         value={reassignTarget}
                         onChange={(e) => setReassignTarget(e.target.value)}
                         className="flex-1 min-w-35 border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
                       >
-                        <option value="">Select category…</option>
+                        <option value="">{t('categories.selectCategory')}</option>
                         {otherCategories.map((c) => (
-                          <option key={c._id} value={c.slug}>{c.label.en}</option>
+                          <option key={c._id} value={c.slug}>{getCategoryLabel(c)}</option>
                         ))}
                       </select>
                       <button
@@ -322,7 +322,7 @@ const Categories = () => {
                         disabled={!reassignTarget || deleting}
                         className="label bg-sumi px-4 py-2 text-[0.5rem] tracking-[0.15em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
                       >
-                        Move & delete
+                        {t('categories.moveAndDelete')}
                       </button>
                     </div>
                   </div>
@@ -335,22 +335,22 @@ const Categories = () => {
                 onClick={() => { setPendingDelete(null); setReassignTarget(''); }}
                 className="label text-[0.5rem] tracking-[0.15em] text-muted-foreground transition-colors hover:text-sumi"
               >
-                Cancel
+                {t('categories.cancel')}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* --- Add / Edit Form --- */}
+      {/* Form */}
       <div className="mt-10 border border-gin bg-white p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="label text-[0.5rem] tracking-[0.2em] text-muted-foreground">
-              {editingId ? 'Edit category' : 'Add new category'}
+              {editingId ? t('categories.editCategory') : t('categories.addNewCategory')}
             </p>
             <h2 className="mt-1 font-display text-xl">
-              {editingId ? 'Edit category' : 'Create category'}
+              {editingId ? t('categories.editCategory') : t('categories.createCategory')}
             </h2>
           </div>
           {editingId && (
@@ -359,7 +359,7 @@ const Categories = () => {
               className="label flex items-center gap-1.5 text-[0.45rem] tracking-[0.15em] text-muted-foreground transition-colors hover:text-sumi"
             >
               <X className="h-3 w-3" strokeWidth={1.5} />
-              Cancel edit / add new
+              {t('categories.cancelEdit')}
             </button>
           )}
         </div>
@@ -368,7 +368,7 @@ const Categories = () => {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Slug
+                {t('categories.slug')}
               </label>
               <input
                 value={form.slug}
@@ -380,7 +380,7 @@ const Categories = () => {
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Order (display position)
+                {t('categories.order')}
               </label>
               <input
                 type="number" min="0"
@@ -394,7 +394,7 @@ const Categories = () => {
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Label (English)
+                {t('categories.labelEn')}
               </label>
               <input
                 value={form.label.en}
@@ -405,7 +405,7 @@ const Categories = () => {
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Label (French)
+                {t('categories.labelFr')}
               </label>
               <input
                 value={form.label.fr}
@@ -416,7 +416,7 @@ const Categories = () => {
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Label (Arabic)
+                {t('categories.labelAr')}
               </label>
               <input
                 value={form.label.ar}
@@ -435,9 +435,9 @@ const Categories = () => {
               variant="primary"
               type="submit"
               disabled={saving}
-              className="label px-6 py-3 transition-colors hover:bg-sumi/90 disabled:opacity-50"
+              className="label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
             >
-              {saving ? 'Saving…' : editingId ? 'Save changes' : 'Add category'}
+              {saving ? t('categories.saving') : editingId ? t('categories.saveChanges') : t('categories.addCategory')}
             </Button>
             {editingId && (
               <button
@@ -445,7 +445,7 @@ const Categories = () => {
                 onClick={resetForm}
                 className="label border border-gin px-6 py-3 text-[0.55rem] tracking-[0.2em] text-muted-foreground transition-colors hover:border-sumi hover:text-sumi"
               >
-                Cancel
+                {t('categories.cancel')}
               </button>
             )}
           </div>

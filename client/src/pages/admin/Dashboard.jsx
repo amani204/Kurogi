@@ -8,6 +8,7 @@ import { formatPrice } from '../../features/menu/utils/formatPrice';
 import { restaurant } from '../../features/restaurant/data';
 import { Calendar, ShoppingBag, Users, DollarSign, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useAdminLang } from '../../i18n/index-admin';
 
 const todayISO = () => new Date().toISOString().split('T')[0];
 
@@ -64,6 +65,7 @@ const InsightCard = ({ title, value, sub, icon: Icon, trend, trendLabel }) => {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { t, lang } = useAdminLang();
   const { data: bookings, loading: bookingsLoading } = useFetch(() => fetchAllBookings({}), []);
   const { data: orders, loading: ordersLoading } = useFetch(() => fetchAllOrders({}), []);
 
@@ -144,6 +146,7 @@ const Dashboard = () => {
       monthlyBookings: monthlyBookings.length,
       bookingsTrend,
       recentBookings,
+      completedOrders: completedOrders.length,
     };
   }, [bookings, orders]);
 
@@ -181,50 +184,49 @@ const Dashboard = () => {
       {/* Header */}
       <div className="mb-8">
         <p className="label text-[0.6rem] tracking-[0.3em] text-muted-foreground">
-          {restaurant.name} · Internal Dashboard
+          {restaurant.name} · {t('dashboard.internalDashboard')}
         </p>
         <h1 className="mt-2 font-display text-4xl leading-tight">
-          Welcome, {user?.name || 'User'}
+          {t('dashboard.welcome')}, {user?.name || 'User'}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          You're signed in as <span className="capitalize">{user?.role || 'staff'}</span>. 
-          Use the sidebar to manage bookings, orders, and 
-          {user?.role === 'owner' ? ' the menu and restaurant settings.' : ' restaurant operations.'}
+          {t('dashboard.signedInAs')} <span className="capitalize">{user?.role || 'staff'}</span>. 
+          {user?.role === 'owner' ? ` ${t('dashboard.ownerDescription')}` : ` ${t('dashboard.staffDescription')}`}
         </p>
       </div>
 
       {/* 4 Key Stats */}
       {loading ? (
         <div className="mt-8 flex items-center justify-center py-12">
-          <p className="label text-muted-foreground">Loading stats…</p>
+          <p className="label text-muted-foreground">{t('dashboard.loadingStats')}</p>
         </div>
       ) : stats ? (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-              label="Today's bookings"
+              label={t('dashboard.todayBookings')}
               value={stats.bookingsToday}
               icon={Calendar}
               to="/admin/bookings"
             />
             <StatCard
-              label="Pending bookings"
+              label={t('dashboard.pendingBookings')}
               value={stats.pendingBookings}
-              sub="Awaiting confirmation"
+              sub={t('dashboard.awaitingConfirmation')}
               icon={Users}
               to="/admin/bookings"
             />
             <StatCard
-              label="Open orders"
+              label={t('dashboard.openOrders')}
               value={stats.openOrders}
-              sub="In progress"
+              sub={t('dashboard.inProgress')}
               icon={ShoppingBag}
               to="/admin/orders"
             />
             <StatCard
-              label="Revenue"
-              value={formatPrice(stats.revenue)}
-              sub="From completed orders"
+              label={t('dashboard.revenue')}
+              value={formatPrice(stats.revenue, lang)}
+              sub={t('dashboard.fromCompletedOrders')}
               icon={DollarSign}
               to="/admin/orders"
             />
@@ -233,40 +235,40 @@ const Dashboard = () => {
           {/* Insights - Monthly Revenue & Bookings */}
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <InsightCard
-              title="Monthly Revenue"
-              value={formatPrice(stats.monthlyRevenue)}
-              sub={`${stats.completedOrders} completed orders this month`}
+              title={t('dashboard.monthlyRevenue')}
+              value={formatPrice(stats.monthlyRevenue, lang)}
+              sub={`${stats.completedOrders} ${t('dashboard.completedOrdersThisMonth')}`}
               icon={TrendingUp}
               trend={stats.revenueTrend}
-              trendLabel="vs last month"
+              trendLabel={t('dashboard.vsLastMonth')}
             />
             <InsightCard
-              title="Monthly Bookings"
+              title={t('dashboard.monthlyBookings')}
               value={stats.monthlyBookings}
-              sub={`${stats.confirmedBookings} confirmed · ${stats.completedBookings} completed · ${stats.cancelledBookings} cancelled`}
+              sub={`${t('dashboard.confirmed')}: ${stats.confirmedBookings} · ${t('dashboard.completed')}: ${stats.completedBookings} · ${t('dashboard.cancelled')}: ${stats.cancelledBookings}`}
               icon={Calendar}
               trend={stats.bookingsTrend}
-              trendLabel="vs last month"
+              trendLabel={t('dashboard.vsLastMonth')}
             />
           </div>
 
           {/* Quick Actions */}
           <div className="mt-10 border-t border-gin pt-8">
-            <p className="label text-[0.55rem] tracking-[0.3em] text-muted-foreground">Quick actions</p>
+            <p className="label text-[0.55rem] tracking-[0.3em] text-muted-foreground">{t('dashboard.quickActions')}</p>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link
                 to="/admin/bookings"
                 className="label flex items-center gap-2 border border-gin px-5 py-3 text-[0.55rem] tracking-[0.15em] text-muted-foreground transition-colors hover:border-sumi hover:text-sumi"
               >
                 <Calendar className="h-3.5 w-3.5" strokeWidth={1.25} />
-                View all bookings
+                {t('dashboard.viewAllBookings')}
               </Link>
               <Link
                 to="/admin/orders"
                 className="label flex items-center gap-2 border border-gin px-5 py-3 text-[0.55rem] tracking-[0.15em] text-muted-foreground transition-colors hover:border-sumi hover:text-sumi"
               >
                 <ShoppingBag className="h-3.5 w-3.5" strokeWidth={1.25} />
-                View all orders
+                {t('dashboard.viewAllOrders')}
               </Link>
               {user?.role === 'owner' && (
                 <Link
@@ -274,14 +276,14 @@ const Dashboard = () => {
                   className="label flex items-center gap-2 bg-shu px-5 py-3 text-[0.55rem] tracking-[0.15em] text-washi transition-colors hover:bg-shu/90"
                 >
                   <Clock className="h-3.5 w-3.5" strokeWidth={1.25} />
-                  Update menu
+                  {t('dashboard.updateMenu')}
                 </Link>
               )}
             </div>
           </div>
         </>
       ) : (
-        <div className="mt-8 text-sm text-shu">Couldn't load dashboard stats.</div>
+        <div className="mt-8 text-sm text-shu">{t('dashboard.couldNotLoadStats')}</div>
       )}
     </div>
   );

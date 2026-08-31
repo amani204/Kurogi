@@ -7,9 +7,12 @@ import { cn } from '../../lib/utils';
 import { formatPrice } from '../../features/menu/utils/formatPrice';
 import { Truck, Edit, Trash2, X, MapPin } from 'lucide-react';
 import Button from "../../components/ui/Button";
+import { useAdminLang } from '../../i18n/index-admin';
+
 const emptyForm = { wilaya: '', price: '' };
 
 const DeliveryZones = () => {
+  const { t, lang } = useAdminLang();
   const [refreshKey, setRefreshKey] = useState(0);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
@@ -36,7 +39,7 @@ const DeliveryZones = () => {
     setError(null);
 
     if (!form.wilaya || form.price === '') {
-      setError('Wilaya and price are required.');
+      setError(t('deliveryZones.wilayaAndPriceRequired'));
       return;
     }
 
@@ -50,21 +53,21 @@ const DeliveryZones = () => {
       resetForm();
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save delivery zone.');
+      setError(err.response?.data?.message || t('deliveryZones.failedToSave'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Remove this delivery zone? Existing orders that used it keep their delivery price — this only stops it being offered to new orders.')) return;
+    if (!confirm(t('deliveryZones.deleteConfirm'))) return;
     setBusyId(id);
     try {
       await deleteDeliveryZone(id);
       if (editingId === id) resetForm();
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete zone.');
+      alert(err.response?.data?.message || t('deliveryZones.failedToDelete'));
     } finally {
       setBusyId(null);
     }
@@ -72,51 +75,49 @@ const DeliveryZones = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-8">
         <p className="label text-[0.6rem] tracking-[0.3em] text-muted-foreground">
-          Orders · Delivery Zones
+          {t('deliveryZones.ordersDeliveryZones')}
         </p>
-        <h1 className="mt-2 font-display text-4xl leading-tight">Delivery Zones</h1>
+        <h1 className="mt-2 font-display text-4xl leading-tight">{t('deliveryZones.deliveryZonesTitle')}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Set the wilayas you deliver to and the delivery fee for each.
+          {t('deliveryZones.deliveryZonesDescription')}
           {zones && (
             <span className="ml-2 num text-muted-foreground">
-              · {zones.length} zones
+              · {zones.length} {t('deliveryZones.zones')}
             </span>
           )}
         </p>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto border border-gin bg-white">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <p className="label text-muted-foreground">Loading delivery zones…</p>
+            <p className="label text-muted-foreground">{t('deliveryZones.loading')}</p>
           </div>
         ) : zones?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Truck className="h-8 w-8 text-muted-foreground/30" strokeWidth={1.25} />
-            <p className="mt-3 label text-muted-foreground">No delivery zones yet</p>
-            <p className="mt-1 text-xs text-muted-foreground">Customers can only pick up for now</p>
+            <p className="mt-3 label text-muted-foreground">{t('deliveryZones.noZones')}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t('deliveryZones.noZonesDescription')}</p>
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead>
+            <thead >
               <tr className="border-b border-gin bg-gin/10">
                 <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-3.5 w-3.5" strokeWidth={1.5} />
-                    Wilaya
+                    {t('deliveryZones.wilaya')}
                   </div>
                 </th>
                 <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    Delivery fee
+                    {t('deliveryZones.deliveryFee')}
                   </div>
                 </th>
-                <th className="px-4 py-3 text-right label text-[0.5rem] tracking-[0.15em] text-muted-foreground">
-                  Actions
+                <th className="px-4 py-3 text-end label text-[0.5rem] tracking-[0.15em] text-muted-foreground">
+                  {t('deliveryZones.actions')}
                 </th>
               </tr>
             </thead>
@@ -130,25 +131,27 @@ const DeliveryZones = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3 num font-medium">
-                    {formatPrice(zone.price)}
+                    {formatPrice(zone.price, lang)}
                   </td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
-                    <button
-                      onClick={() => startEdit(zone)}
-                      className="label inline-flex items-center gap-1 text-[0.45rem] tracking-widest text-muted-foreground transition-colors hover:text-sumi mr-4"
-                    >
-                      <Edit className="h-3 w-3" strokeWidth={1.5} />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(zone._id)}
-                      disabled={busyId === zone._id}
-                      className="label inline-flex items-center gap-1 text-[0.45rem] tracking-widest text-shu/60 transition-colors hover:text-shu disabled:opacity-40"
-                    >
-                      <Trash2 className="h-3 w-3" strokeWidth={1.5} />
-                      Delete
-                    </button>
-                  </td>
+                 <td className="text-end px-4 py-3 whitespace-nowrap">
+  <div className="flex items-center justify-end gap-4">
+    <button
+      onClick={() => startEdit(zone)}
+      className="label inline-flex items-center gap-1 text-[0.45rem] tracking-widest text-muted-foreground transition-colors hover:text-sumi"
+    >
+      <Edit className="h-3 w-3" strokeWidth={1.5} />
+      {t('deliveryZones.edit')}
+    </button>
+    <button
+      onClick={() => handleDelete(zone._id)}
+      disabled={busyId === zone._id}
+      className="label inline-flex items-center gap-1 text-[0.45rem] tracking-widest text-shu/60 transition-colors hover:text-shu disabled:opacity-40"
+    >
+      <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+      {t('deliveryZones.delete')}
+    </button>
+  </div>
+</td>
                 </tr>
               ))}
             </tbody>
@@ -156,35 +159,33 @@ const DeliveryZones = () => {
         )}
       </div>
 
-      {/* Zone stats */}
       {zones && zones.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
           <span className="label text-[0.45rem] tracking-[0.15em]">
-            Total zones: <span className="num">{zones.length}</span>
+            {t('deliveryZones.totalZones')}: <span className="num">{zones.length}</span>
           </span>
           <span className="label text-[0.45rem] tracking-[0.15em]">
-            Avg. delivery fee: <span className="num">
-              {formatPrice(zones.reduce((sum, z) => sum + z.price, 0) / zones.length)}
+            {t('deliveryZones.avgFee')}: <span className="num">
+              {formatPrice(zones.reduce((sum, z) => sum + z.price, 0) / zones.length, lang)}
             </span>
           </span>
           <span className="label text-[0.45rem] tracking-[0.15em]">
-            Min: <span className="num">{formatPrice(Math.min(...zones.map(z => z.price)))}</span>
+            {t('deliveryZones.min')}: <span className="num">{formatPrice(Math.min(...zones.map(z => z.price)), lang)}</span>
           </span>
           <span className="label text-[0.45rem] tracking-[0.15em]">
-            Max: <span className="num">{formatPrice(Math.max(...zones.map(z => z.price)))}</span>
+            {t('deliveryZones.max')}: <span className="num">{formatPrice(Math.max(...zones.map(z => z.price)), lang)}</span>
           </span>
         </div>
       )}
 
-      {/* Form */}
       <div className="mt-10 border border-gin bg-white p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="label text-[0.5rem] tracking-[0.2em] text-muted-foreground">
-              {editingId ? 'Edit delivery fee' : 'Add new zone'}
+              {editingId ? t('deliveryZones.editZone') : t('deliveryZones.addNewZone')}
             </p>
             <h2 className="mt-1 font-display text-xl">
-              {editingId ? 'Edit delivery zone' : 'Create delivery zone'}
+              {editingId ? t('deliveryZones.editDeliveryZone') : t('deliveryZones.createDeliveryZone')}
             </h2>
           </div>
           {editingId && (
@@ -193,7 +194,7 @@ const DeliveryZones = () => {
               className="label flex items-center gap-1.5 text-[0.45rem] tracking-[0.15em] text-muted-foreground transition-colors hover:text-sumi"
             >
               <X className="h-3 w-3" strokeWidth={1.5} />
-              Cancel edit / add new
+              {t('deliveryZones.cancelEdit')}
             </button>
           )}
         </div>
@@ -202,7 +203,7 @@ const DeliveryZones = () => {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                place
+                {t('deliveryZones.wilaya')}
               </label>
               <input
                 value={form.wilaya}
@@ -217,13 +218,13 @@ const DeliveryZones = () => {
               />
               {editingId && (
                 <p className="mt-1.5 text-[0.45rem] text-muted-foreground">
-                  place name can't be changed — delete and re-add if needed.
+                  {t('deliveryZones.wilayaNotEditable')}
                 </p>
               )}
             </div>
             <div>
               <label className="label block text-[0.45rem] tracking-[0.2em] text-muted-foreground mb-1.5">
-                Delivery fee (DA)
+                {t('deliveryZones.deliveryFee')}
               </label>
               <input
                 type="number"
@@ -245,9 +246,9 @@ const DeliveryZones = () => {
               variant="primary"
               type="submit"
               disabled={saving}
-               className="label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
+              className="label px-6 py-3 text-[0.55rem] tracking-[0.2em] text-washi transition-colors hover:bg-sumi/90 disabled:opacity-50"
             >
-              {saving ? 'Saving…' : editingId ? 'Save changes' : 'Add zone'}
+              {saving ? t('deliveryZones.saving') : editingId ? t('deliveryZones.saveChanges') : t('deliveryZones.addZone')}
             </Button>
             {editingId && (
               <button
@@ -255,7 +256,7 @@ const DeliveryZones = () => {
                 onClick={resetForm}
                 className="label border border-gin px-6 py-3 text-[0.55rem] tracking-[0.2em] text-muted-foreground transition-colors hover:border-sumi hover:text-sumi"
               >
-                Cancel
+                {t('deliveryZones.cancel')}
               </button>
             )}
           </div>

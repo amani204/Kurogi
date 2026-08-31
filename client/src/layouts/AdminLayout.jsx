@@ -3,29 +3,45 @@ import { useAuth } from '../features/auth/context/AutContext'
 import { useFetch } from '../hooks/useFetch';
 import { fetchRestaurantSettings } from '../features/restaurant/api';
 import { cn } from '../lib/utils';
-import { LayoutDashboard, Calendar, ShoppingBag, Menu, Image, Settings, LogOut, Bike, User } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Calendar, 
+  ShoppingBag, 
+  Menu, 
+  Image, 
+  Settings, 
+  LogOut, 
+  Bike, 
+  User,
+  Globe
+} from 'lucide-react';
+import { useAdminLang } from '../i18n/index-admin';
+import LanguageSwitcher from '../components/admin/LanguageSwitcher';
 
 const navItems = [
-  { to: '/admin', end: true, icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/admin/bookings', icon: Calendar, label: 'Bookings' },
-  { to: '/admin/orders', icon: ShoppingBag, label: 'Orders' },
+  { to: '/admin', end: true, icon: LayoutDashboard, label: 'dashboardPage' },
+  { to: '/admin/bookings', icon: Calendar, label: 'reservationsPage' },
+  { to: '/admin/orders', icon: ShoppingBag, label: 'ordersPage' },
 ];
 
 const ownerItems = [
-  { to: '/admin/menu', icon: Menu, label: 'Menu' },
-  { to: '/admin/categories', icon: Image, label: 'Categories' },
-  { to: '/admin/delivery-zones', icon: Bike, label: 'Delivery Zones' },
-  { to: '/admin/settings', icon: Settings, label: 'Settings' },
+  { to: '/admin/menu', icon: Menu, label: 'menuPage' },
+  { to: '/admin/categories', icon: Image, label: 'categoriesPage' },
+  { to: '/admin/delivery-zones', icon: Bike, label: 'deliveryZonesPage' },
+  { to: '/admin/settings', icon: Settings, label: 'settingsPage' },
 ];
 
 const AdminLayout = () => {
   const { user, loading, logout } = useAuth();
   const { data: restaurant } = useFetch(fetchRestaurantSettings, []);
+  const { t, lang, setLang } = useAdminLang();
+
+  const isRTL = lang === 'ar';
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="label text-muted-foreground">Loading…</p>
+        <p className="label text-muted-foreground">{t('loading')}</p>
       </div>
     );
   }
@@ -39,40 +55,45 @@ const AdminLayout = () => {
     );
 
   return (
-    <div className="flex min-h-screen bg-washi">
-      <aside className="fixed inset-y-0 left-0 z-40 w-64 shrink-0 border-r border-gin bg-washi">
+    <div className="flex min-h-screen bg-washi" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Sidebar - with RTL support */}
+      <aside className={cn(
+        "fixed inset-y-0 z-40 w-64 shrink-0 border-r border-gin bg-washi",
+        isRTL ? "right-0 border-l border-r-0" : "left-0"
+      )}>
         <div className="border-b border-gin px-6 py-5">
           <p className="label text-[0.6rem] tracking-[0.4em] text-muted-foreground">
             {restaurant?.name || '...'}
           </p>
-          <p className="mt-1 text-xs font-light text-muted-foreground">Internal · {user.role}</p>
+          <p className="label text-[0.4rem] tracking-[0.15em] text-muted-foreground">
+            {user?.role === 'owner' ? t('owner') : t('staff')}
+          </p>
         </div>
 
         <nav className="flex-1 space-y-0.5 px-3 py-4">
-          {/* shared: dashboard, bookings, orders — both roles */}
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className={linkClass}>
               <item.icon className="h-3.5 w-3.5" strokeWidth={1.25} />
-              {item.label}
+              {t(item.label)}
             </NavLink>
           ))}
 
-          {/* Users — both roles, staff manage their own account here */}
           <NavLink to="/admin/users" className={linkClass}>
             <User className="h-3.5 w-3.5" strokeWidth={1.25} />
-            Users
+            {t('usersPage')}
           </NavLink>
 
-          {/* owner-only section */}
           {user.role === 'owner' && (
             <>
               <div className="my-4 border-t border-gin pt-4">
-                <p className="label px-3 pb-2 text-[0.5rem] tracking-[0.2em] text-muted-foreground">Owner</p>
+                <p className="label px-3 pb-2 text-[0.5rem] tracking-[0.2em] text-muted-foreground">
+                  {t('owner')}
+                </p>
               </div>
               {ownerItems.map((item) => (
                 <NavLink key={item.to} to={item.to} className={linkClass}>
                   <item.icon className="h-3.5 w-3.5" strokeWidth={1.25} />
-                  {item.label}
+                  {t(item.label)}
                 </NavLink>
               ))}
             </>
@@ -85,16 +106,49 @@ const AdminLayout = () => {
             className="label flex w-full items-center gap-3 px-3 py-2.5 text-[0.6rem] tracking-widest text-muted-foreground transition-colors hover:text-shu"
           >
             <LogOut className="h-3.5 w-3.5" strokeWidth={1.25} />
-            Log out
+            {t('logout')}
           </button>
         </div>
       </aside>
 
-      <main className="ml-64 flex-1 p-8">
-        <div className="mx-auto max-w-7xl">
-          <Outlet />
-        </div>
-      </main>
+      {/* Main content with top bar */}
+      <div className={cn(
+        "flex-1",
+        isRTL ? "mr-64" : "ml-64"
+      )}>
+        {/* Top Bar */}
+        <header dir='ltr' className="sticky top-0 z-30 border-b border-gin bg-washi/80 backdrop-blur-sm">
+          <div className={cn(
+            "flex h-16 items-center justify-between px-8",
+            isRTL && "flex-row-reverse"
+          )}>
+            <div className={isRTL ? "text-right" : ""}>
+              <p className="label text-[0.5rem] tracking-[0.2em] text-muted-foreground">
+                {t('dashboardPage')}
+              </p>
+              <h1 className="font-display text-lg leading-tight">
+                {user?.name || 'User'}
+              </h1>
+            </div>
+
+            <div className={cn(
+              "flex items-center gap-4",
+              isRTL && "flex-row-reverse"
+            )}>
+              <div className="flex items-center gap-4">
+               <LanguageSwitcher variant="default" />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="p-8">
+          <div className="mx-auto max-w-7xl">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 };

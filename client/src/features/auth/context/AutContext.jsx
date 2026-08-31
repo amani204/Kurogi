@@ -29,6 +29,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     await api.post('/auth/logout');
     setUser(null);
+  //  navigate(VITE_ADMIN_ENTRY);
   };
 
   return (

@@ -4,21 +4,22 @@ import { fetchAllOrders, updateOrderStatus } from '../../features/orders/api';
 import { cn } from '../../lib/utils';
 import { formatPrice } from '../../features/menu/utils/formatPrice';
 import { ChevronDown, ChevronRight, Package, Truck } from 'lucide-react';
+import { useAdminLang } from '../../i18n/index-admin';
 
 const STATUS_OPTIONS = ['pending', 'confirmed', 'completed', 'cancelled'];
 
 const STATUS_STYLES = {
-  pending: 'bg-kin/10 text-kin',
-  confirmed: 'bg-nori/10 text-nori',
-  completed: 'bg-sumi/10 text-sumi',
-  cancelled: 'bg-shu/10 text-shu',
+  pending: 'bg-purple-100 text-purple-700',
+  confirmed: 'bg-blue-100 text-blue-700',
+  completed: 'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
 };
 
 const STATUS_DOT = {
-  pending: 'bg-kin',
-  confirmed: 'bg-nori',
-  completed: 'bg-sumi',
-  cancelled: 'bg-shu',
+  pending: 'bg-purple-500',
+  confirmed: 'bg-blue-500',
+  completed: 'bg-green-500',
+  cancelled: 'bg-red-500',
 };
 
 const FULFILLMENT_ICONS = {
@@ -26,9 +27,15 @@ const FULFILLMENT_ICONS = {
   delivery: Truck,
 };
 
-const OrderRow = ({ order, onStatusChange, updating }) => {
+const OrderRow = ({ order, onStatusChange, updating, t, lang }) => {
   const [expanded, setExpanded] = useState(false);
   const FulfillmentIcon = FULFILLMENT_ICONS[order.fulfillment] || Package;
+
+  // Get item name based on language
+  const getItemName = (item) => {
+    if (typeof item.name === 'string') return item.name;
+    return item.name?.[lang] || item.name?.en || item.name?.fr || 'Unknown';
+  };
 
   return (
     <>
@@ -43,22 +50,19 @@ const OrderRow = ({ order, onStatusChange, updating }) => {
         <td className="px-4 py-3">
           <span className="label flex items-center gap-1.5 text-[0.45rem] tracking-widest text-muted-foreground">
             <FulfillmentIcon className="h-3 w-3" strokeWidth={1.5} />
-            {order.fulfillment}
+            {order.fulfillment === 'delivery' ? t('orders.delivery') : t('orders.pickup')}
           </span>
         </td>
         <td className="px-4 py-3 num whitespace-nowrap font-medium">
-          {formatPrice(order.totalPrice)}
+          {formatPrice(order.totalPrice, lang)}
         </td>
         <td className="px-4 py-3">
           <span className={cn(
             "label inline-block px-2.5 py-1 text-[0.45rem] tracking-widest",
             STATUS_STYLES[order.status] || 'bg-gin/20 text-muted-foreground'
           )}>
-            <span className={cn(
-              "inline-block h-1.5 w-1.5 rounded-full mr-1.5 align-middle",
-              STATUS_DOT[order.status] || 'bg-gin'
-            )} />
-            {order.status}
+        
+            {t(`orders.status.${order.status}`)}
           </span>
         </td>
         <td className="px-4 py-3">
@@ -72,7 +76,9 @@ const OrderRow = ({ order, onStatusChange, updating }) => {
             )}
           >
             {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s} className="capitalize">{s}</option>
+              <option key={s} value={s} className="capitalize">
+                {t(`orders.status.${s}`)}
+              </option>
             ))}
           </select>
         </td>
@@ -84,12 +90,12 @@ const OrderRow = ({ order, onStatusChange, updating }) => {
             {expanded ? (
               <>
                 <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
-                Hide
+                {t('orders.hide')}
               </>
             ) : (
               <>
                 <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
-                Details
+                {t('orders.details')}
               </>
             )}
           </button>
@@ -101,21 +107,23 @@ const OrderRow = ({ order, onStatusChange, updating }) => {
             <div className="grid gap-6 sm:grid-cols-2">
               {/* Items */}
               <div>
-                <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground">Items</p>
+                <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground">
+                  {t('orders.items')}
+                </p>
                 <ul className="mt-2 space-y-1">
                   {order.items.map((item, i) => (
                     <li key={i} className="flex justify-between text-sm">
                       <span>
                         <span className="num text-xs text-muted-foreground mr-2">{item.quantity}×</span>
-                        {item.name}
+                        {getItemName(item)}
                       </span>
-                      <span className="num text-xs">{formatPrice(item.price * item.quantity)}</span>
+                      <span className="num text-xs">{formatPrice(item.price * item.quantity, lang)}</span>
                     </li>
                   ))}
                 </ul>
                 <div className="mt-3 flex justify-between border-t border-gin/50 pt-2 text-sm font-medium">
-                  <span>Total</span>
-                  <span className="num">{formatPrice(order.totalPrice)}</span>
+                  <span>{t('orders.total')}</span>
+                  <span className="num">{formatPrice(order.totalPrice, lang)}</span>
                 </div>
               </div>
 
@@ -123,29 +131,35 @@ const OrderRow = ({ order, onStatusChange, updating }) => {
               <div>
                 {order.fulfillment === 'delivery' && (
                   <div>
-                    <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground">Delivery</p>
+                    <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground">
+                      {t('orders.delivery')}
+                    </p>
                     <p className="mt-2 text-sm">{order.address}</p>
                     {order.deliveryZone && (
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {order.deliveryZone.wilaya} · {formatPrice(order.deliveryZone.price)} delivery
+                        {order.deliveryZone.wilaya} · {formatPrice(order.deliveryZone.price, lang)} {t('orders.deliveryFee')}
                       </p>
                     )}
                   </div>
                 )}
                 {order.notes && (
                   <div className={cn(order.fulfillment === 'delivery' && 'mt-4')}>
-                    <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground">Notes</p>
+                    <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground">
+                      {t('orders.notes')}
+                    </p>
                     <p className="mt-2 text-sm italic text-muted-foreground">“{order.notes}”</p>
                   </div>
                 )}
                 {order.email && (
                   <div className={cn((order.fulfillment === 'delivery' || order.notes) && 'mt-4')}>
-                    <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground">Email</p>
+                    <p className="label text-[0.45rem] tracking-[0.2em] text-muted-foreground">
+                      {t('orders.email')}
+                    </p>
                     <p className="mt-2 text-sm text-muted-foreground">{order.email}</p>
                   </div>
                 )}
                 <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
-                  <span className="label text-[0.4rem] tracking-[0.15em]">Order ID</span>
+                  <span className="label text-[0.4rem] tracking-[0.15em]">{t('orders.orderId')}</span>
                   <span className="num">{order._id}</span>
                 </div>
               </div>
@@ -158,6 +172,7 @@ const OrderRow = ({ order, onStatusChange, updating }) => {
 };
 
 const Orders = () => {
+  const { t, lang } = useAdminLang();
   const [statusFilter, setStatusFilter] = useState('');
   const [updatingId, setUpdatingId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -173,7 +188,7 @@ const Orders = () => {
       await updateOrderStatus(id, newStatus);
       setRefreshKey((k) => k + 1);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to update status.');
+      alert(err.response?.data?.message || t('orders.failedToUpdateStatus'));
     } finally {
       setUpdatingId(null);
     }
@@ -187,14 +202,14 @@ const Orders = () => {
       {/* Header */}
       <div className="mb-8">
         <p className="label text-[0.6rem] tracking-[0.3em] text-muted-foreground">
-          Restaurant · Orders
+          {t('orders.restaurantOrders')}
         </p>
-        <h1 className="mt-2 font-display text-4xl leading-tight">Orders</h1>
+        <h1 className="mt-2 font-display text-4xl leading-tight">{t('orders.ordersTitle')}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          View and manage food orders.
+          {t('orders.ordersDescription')}
           {orders && (
             <span className="ml-2 num text-muted-foreground">
-              · {orders.length} total
+              · {orders.length} {t('orders.total')}
             </span>
           )}
         </p>
@@ -207,9 +222,11 @@ const Orders = () => {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="border border-gin bg-transparent px-3 py-2 text-sm focus:border-shu focus:outline-none"
         >
-          <option value="">All statuses</option>
+          <option value="">{t('orders.allStatuses')}</option>
           {STATUS_OPTIONS.map((s) => (
-            <option key={s} value={s} className="capitalize">{s}</option>
+            <option key={s} value={s} className="capitalize">
+              {t(`orders.status.${s}`)}
+            </option>
           ))}
         </select>
 
@@ -218,13 +235,13 @@ const Orders = () => {
             onClick={clearFilter}
             className="label flex items-center gap-1.5 text-[0.5rem] tracking-[0.15em] text-muted-foreground transition-colors hover:text-shu"
           >
-            Clear filter
+            {t('orders.clearFilter')}
           </button>
         )}
 
         {hasFilters && orders && (
           <span className="label ml-auto text-[0.45rem] tracking-[0.15em] text-muted-foreground">
-            {orders.length} result{orders.length !== 1 ? 's' : ''}
+            {orders.length} {t('orders.result')}{orders.length !== 1 ? 's' : ''}
           </span>
         )}
       </div>
@@ -233,21 +250,21 @@ const Orders = () => {
       <div className="mt-6 overflow-x-auto border border-gin bg-white">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <p className="label text-muted-foreground">Loading orders…</p>
+            <p className="label text-muted-foreground">{t('orders.loadingOrders')}</p>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-16">
-            <p className="label text-shu">Couldn't load orders.</p>
+            <p className="label text-shu">{t('orders.couldNotLoadOrders')}</p>
           </div>
         ) : orders?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <p className="label text-muted-foreground">No orders found</p>
+            <p className="label text-muted-foreground">{t('orders.noOrdersFound')}</p>
             {hasFilters && (
               <button
                 onClick={clearFilter}
                 className="mt-3 label text-[0.5rem] tracking-[0.15em] text-shu hover:underline"
               >
-                Clear filter
+                {t('orders.clearFilter')}
               </button>
             )}
           </div>
@@ -255,13 +272,13 @@ const Orders = () => {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gin bg-gin/10">
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Placed</th>
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Customer</th>
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Phone</th>
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Fulfillment</th>
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Total</th>
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Status</th>
-                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">Update</th>
+                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('orders.placed')}</th>
+                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('orders.customer')}</th>
+                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('orders.phone')}</th>
+                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('orders.fulfillment')}</th>
+                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('orders.total')}</th>
+                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('orders.orderStatus')}</th>
+                <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground">{t('orders.update')}</th>
                 <th className="px-4 py-3 text-left label text-[0.5rem] tracking-[0.15em] text-muted-foreground"></th>
               </tr>
             </thead>
@@ -272,6 +289,8 @@ const Orders = () => {
                   order={order}
                   onStatusChange={handleStatusChange}
                   updating={updatingId === order._id}
+                  t={t}
+                  lang={lang}
                 />
               ))}
             </tbody>
@@ -283,7 +302,7 @@ const Orders = () => {
       {orders && orders.length > 0 && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            Showing <span className="num">{orders.length}</span> orders
+            {t('orders.showing')} <span className="num">{orders.length}</span> {t('orders.orders')}
           </p>
           <div className="flex gap-4">
             {STATUS_OPTIONS.map((status) => {
@@ -302,7 +321,7 @@ const Orders = () => {
                     "inline-block h-1.5 w-1.5 rounded-full",
                     STATUS_DOT[status] || 'bg-gin'
                   )} />
-                  {status}
+                  {t(`orders.status.${status}`)}
                   <span className="num ml-0.5">({count})</span>
                 </button>
               );
