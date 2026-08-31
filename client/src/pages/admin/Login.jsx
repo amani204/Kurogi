@@ -40,7 +40,6 @@ const Login = () => {
         return;
       }
 
-      sessionStorage.removeItem('admin_unlocked');
       const dest = location.state?.from || '/admin';
       navigate(dest, { replace: true });
     } catch (err) {
