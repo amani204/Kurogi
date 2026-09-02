@@ -42,7 +42,8 @@ const orderRules = [
   body('notes').optional().trim().isLength({ max: 300 }),
 ];
 
-const menuItemRules = [
+// used when CREATING a menu item — slug is required, it's set once here
+const menuItemCreateRules = [
   body('slug').trim().toLowerCase().matches(/^[a-z0-9-]+$/).withMessage('Slug must be lowercase letters, numbers, and hyphens only').isLength({ max: 60 }),
   body('name.en').trim().notEmpty().isLength({ max: 100 }),
   body('name.fr').trim().notEmpty().isLength({ max: 100 }),
@@ -56,6 +57,21 @@ const menuItemRules = [
   body('available').optional().isBoolean(),
   body('featured').optional().isBoolean(),
 ];
+
+const menuItemUpdateRules = [
+  body('name.en').trim().notEmpty().isLength({ max: 100 }),
+  body('name.fr').trim().notEmpty().isLength({ max: 100 }),
+  body('name.ar').trim().notEmpty().isLength({ max: 100 }),
+  body('description.en').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
+  body('description.fr').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
+  body('description.ar').optional({ checkFalsy: true }).trim().isLength({ max: 500 }),
+  body('price').isFloat({ min: 0 }).toFloat(),
+  body('category').trim().notEmpty().toLowerCase(),
+  body('photoUrl').trim().notEmpty().withMessage('Photo URL is required').isURL().withMessage('photoUrl must be a valid URL'),
+  body('available').optional().isBoolean(),
+  body('featured').optional().isBoolean(),
+];
+
 const categoryCreateRules = [
   body('slug').trim().toLowerCase().matches(/^[a-z0-9-]+$/).withMessage('Slug must be lowercase letters, numbers, and hyphens only').isLength({ max: 40 }),
   body('label.en').trim().notEmpty().isLength({ max: 50 }),
@@ -63,16 +79,17 @@ const categoryCreateRules = [
   body('label.ar').trim().notEmpty().isLength({ max: 50 }),
   body('order').optional().isInt({ min: 0 }).toInt(),
 ];
-const categoryDeleteRules = [
-  body('action').optional().isIn(['delete-items', 'reassign']),
-  body('reassignTo').optional().trim().toLowerCase(),
-];
 
 const categoryUpdateRules = [
   body('label.en').trim().notEmpty().isLength({ max: 50 }),
   body('label.fr').trim().notEmpty().isLength({ max: 50 }),
   body('label.ar').trim().notEmpty().isLength({ max: 50 }),
   body('order').optional().isInt({ min: 0 }).toInt(),
+];
+
+const categoryDeleteRules = [
+  body('action').optional().isIn(['delete-items', 'reassign']),
+  body('reassignTo').optional().trim().toLowerCase(),
 ];
 
 const deliveryZoneCreateRules = [
@@ -106,14 +123,15 @@ const updateMeRules = [
   body('currentPassword').optional().notEmpty(),
   body('newPassword').optional().isLength({ min: 8 }).withMessage('New password must be at least 8 characters').matches(/\d/).withMessage('New password must contain a number'),
 ];
+
 module.exports = {
   validate,
   registerRules, loginRules,
   bookingRules,
   orderRules,
-  menuItemRules,
-  categoryCreateRules, categoryUpdateRules,
+  menuItemCreateRules, menuItemUpdateRules,
+  categoryCreateRules, categoryUpdateRules, categoryDeleteRules,
   deliveryZoneCreateRules, deliveryZoneUpdateRules,
   restaurantSettingsRules,
-  categoryDeleteRules, updateMeRules
+  updateMeRules,
 };

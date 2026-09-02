@@ -1,5 +1,5 @@
 const MenuItem = require('../models/MenuItem');
-const Category = require('../models/category');
+const Category = require('../models/category'); 
 
 const getMenu = async (req, res) => {
   const { category, featured } = req.query;
@@ -24,8 +24,6 @@ const createMenuItem = async (req, res) => {
   res.status(201).json(item);
 };
 
-// slug is intentionally not editable — same reasoning as Category: the frontend
-// image map and cart reference items by slug, renaming would orphan those links
 const updateMenuItem = async (req, res) => {
   const { name, description, price, category, photoUrl, available, featured } = req.body;
 
